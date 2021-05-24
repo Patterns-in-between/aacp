@@ -18,5 +18,5 @@ while True:
         message = subscriberSocket.recv_multipart()
         numbers = re.findall("\d+\.\d+", str(message))
         for i, value in enumerate(numbers):
-            liblo.send(target, "/ctrl", "sensor" + str(i), value)
+            liblo.send(target, "/ctrl", "sensor" + str(i), float(value))
         print(numbers)
