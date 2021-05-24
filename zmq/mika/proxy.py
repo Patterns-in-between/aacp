@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import zmq
 
 xpub_addr = 'tcp://0.0.0.0:5555'
