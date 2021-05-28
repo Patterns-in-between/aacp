@@ -13,7 +13,10 @@ ifeq ($(UNAME), Darwin)
 CXX=clang++
 CXXFLAGS+=-D__MACOSX_CORE__ 
 CFLAGS+=-D__MACOSX_CORE__ 
-LIBS +=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation
+LIBS +=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation \
+	-framework IOKit -framework Carbon  -framework OpenGL \
+	-framework Foundation \
+	-framework AppKit -lstdc++ -lm -L/usr/local/lib
 LIBS += -framework Cocoa -framework CoreVideo -lm -lsoundpipe -lsndfile
 CXXFLAGS += -I/usr/local/include
 CFLAGS += -I/usr/local/include
