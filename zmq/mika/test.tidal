@@ -1,0 +1,22 @@
+
+d1 $ while ((> 0.5) <$> "^sensor6") (hurry 2 . (# squiz 1.1))
+  $ sound "bd(5,8,<0 2>)" # speed ("^sensor1"*8)
+
+d2 $ while ((> 0.5) <$> "^sensor7") (jux rev) $
+  sound "sd*2 mt*3" # speed ("^sensor2"*8)
+
+d3 $ sew ((> 0.5) <$> "^sensor3")
+  (sound "snare:4(3,8,<0 2>)")
+  (sound "clap:4*2" # speed 2)
+  # room "^sensor1" # sz "^sensor2"
+
+d4 $ off ("^sensor4") (|+ n 1) $ sound "numbers"
+   # n ("^sensor3" * 10)
+   # gain 1.2
+
+d1 $ loopAt 8 $ sound "bev"
+  # crushbus 0 "^sensor0"
+
+d1 $ sound "drum*8" # n (irand "^sensor0")
+
+hush
