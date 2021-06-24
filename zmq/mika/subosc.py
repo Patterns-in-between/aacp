@@ -31,9 +31,14 @@ subscriberSocket.setsockopt(zmq.SUBSCRIBE, b"sensors")
 while True:
     if subscriberSocket.poll(timeout=1000):
         message = subscriberSocket.recv_multipart()
-        logfh.write(str(time.time_ns() * 1e-9) + " | " + message + "\n")
+
+        logmsg = str(time.time_ns() * 1e-9) + " | " + message[0].decode("utf-8") + " | " + message[1].decode("utf-8") + "\n"
+        print(logmsg)
+
+        logfh.write(logmsg)
         # Make sure it gets written
         logfh.flush()
+        
         numbers = re.findall("\d+\.\d+", str(message))
         for i, value in enumerate(numbers):
             liblo.send(target, "/ctrl", "sensor" + str(i), float(value))
