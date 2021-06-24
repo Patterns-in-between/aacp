@@ -35,13 +35,12 @@ while (True):
         print("End of log.")
         exit(0)
         
-    m = re.search("^(\S+)\s+\| (.*?) \| (.*)", line)
+    m = re.search("^(\S+)\s+\| (.*)", line)
     if not m:
         print("Couldn't parse line: " + line)
     else:
         logwhen = float(m.group(1))
-        name = m.group(2)
-        message = m.group(3)
+        message = m.group(2)
         
         now = time.time_ns() * 1e-9
         when = start + (logwhen - logstart)
@@ -49,7 +48,7 @@ while (True):
         
         if delay > 0:
             time.sleep(delay)
-            
-        publisherSocket.send_multipart([name.encode('utf-8'),message.encode('utf-8')])
+        print(message.encode('utf-8'))
+        publisherSocket.send_multipart([message.encode('utf-8')])
 
 
