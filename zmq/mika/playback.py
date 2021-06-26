@@ -20,7 +20,7 @@ if not m:
 logstart = float(m.group(1))
 print("Log start time: " + str(logstart))
 
-start = time.time_ns() * 1e-9
+start = time.time() * 1e-9
 
 xsub_addr = 'tcp://slab.org:5556'
 context = zmq.Context()
@@ -42,7 +42,7 @@ while (True):
         logwhen = float(m.group(1))
         message = m.group(2)
         
-        now = time.time_ns() * 1e-9
+        now = time.time() * 1e-9
         when = start + (logwhen - logstart)
         delay = when - now
         
