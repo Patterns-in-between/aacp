@@ -5,9 +5,9 @@ from pathlib import Path
 
 logdir = "logs"
 
-subname = b"sensors"
+subname = b"adjusted"
 
-log = False
+log = True
 
 if log:
     Path(logdir).mkdir(parents=True, exist_ok=True)
@@ -32,13 +32,13 @@ subscriberSocket.setsockopt(zmq.SUBSCRIBE, subname)
 while True:
     if subscriberSocket.poll(timeout=1000):
         message = subscriberSocket.recv_multipart()
-        print(str(message[0]))
+        #print(str(message[0]))
         msg = str(message[0]) #.decode("utf-8")
         msg = re.sub(r"^b'","",msg)
         msg = re.sub(r";.*$","",msg)
         if log:
             logmsg = str(time.time_ns() * 1e-9) + " | " + msg + "\n"
-            print(logmsg)
+            #print(logmsg)
             logfh.write(logmsg)
             # Make sure it gets written
             logfh.flush()
@@ -48,4 +48,4 @@ while True:
             liblo.send(target, "/ctrl", "sensor" + str(i), float(value))
         floats = map(float, numbers)
         liblo.send(targetp5, "/all", *floats)
-        print(numbers)
+        #print(numbers)

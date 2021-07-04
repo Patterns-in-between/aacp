@@ -3,17 +3,34 @@ import netP5.*;
 
 OscP5 oscP5;
 
+int lines = 3;
+int histsz = 100;
 
 ArrayList<Point> history = new ArrayList<Point>();
 
 void setup() {
-  size(400,400);
+  size(800,600);
   oscP5 = new OscP5(this, 6011);
 }
 
 void draw() {
   background(0);
+  stroke(255);
+  if (history.size() == 0) {
+    return;
+  }
+  synchronized(history) {
+    Point last = history.get(0);
+    for (int h = 1; h < history.size(); ++h) {
+      Point p = history.get(h);
+      for (int l = 0; l < lines; ++l) {
+        line(((h-1)/100.0)*width, last.dims[l]*height, (h/100.0)*width, p.dims[l]*height);
+      }
+      last = p;
+    }
+  }
   //println(history.size());
+  /*
   if (history.size() > 0) {
     Point last = history.get(0);
     for (int i = 1; i < history.size(); ++i) {
@@ -29,6 +46,7 @@ void draw() {
       last = p;
     }
   }
+  */
 }
 
 void oscEvent(OscMessage m) {
@@ -37,31 +55,23 @@ void oscEvent(OscMessage m) {
   println(" typetag: "+m.typetag());
   
   if(m.checkTypetag("fff")) {
-    history.add(new Point(m.get(0).floatValue(),
-                          m.get(1).floatValue(),
-                          m.get(2).floatValue()
-    ));
-    while (history.size() > 100) {
-      history.remove(0);
+    float dims[] = new float[lines];
+    for (int i = 0; i < lines; ++i) {
+      dims[i] = m.get(i).floatValue();
     }
-  }
-  if(m.checkTypetag("ffffffff")) {
-    history.add(new Point(m.get(0).floatValue(),
-                          m.get(1).floatValue(),
-                          m.get(2).floatValue()
-    ));
-    while (history.size() > 100) {
-      history.remove(0);
+    synchronized(history) {
+      history.add(new Point(dims));
+      while (history.size() > histsz) {
+        history.remove(0);
+      }
     }
   }
 }
 
 class Point {
-  float x;
-  float y;
-  float z;
-  Point(float a, float b, float c) {
-    //println(a + "x" + b + "x" + c);
-    x = a; y = b; z = c;
+  float dims[];
+  
+  Point(float[] a) {
+    dims = a;
   }
 }

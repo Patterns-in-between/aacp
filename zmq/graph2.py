@@ -8,35 +8,53 @@ import random
 import time
 import zmq
 import re
+import liblo
 
-subname = b"sensors"
+subname = b"adjusted"
 addr = 'tcp://slab.org:5555'
+
+try:
+    target = liblo.Address("localhost", 6010)
+except (liblo.AddressError, err):
+    print(str(err))
+    sys.exit()
 
 class Data():
 
     def __init__(self):
 
-        self.XData = [0]
-        self.YData = [0]
-        self.freqs = [0]
-        self.mags = [0]
-        self.acf = [0]
-        self.inflection = [0]
+        self.XData = [[0],[0],[0],[0],[0],[0],[0],[0]]
+        self.YData = [[0],[0],[0],[0],[0],[0],[0],[0]]
+        self.freqs = [[0],[0],[0],[0],[0],[0],[0],[0]]
+        self.mags  = [[0],[0],[0],[0],[0],[0],[0],[0]]
 
 
 class Plot():
     def __init__(self, data):
 
         self._data = data
-        self.hLine, = plt.plot(0, 0)
-        self.ani = FuncAnimation(plt.gcf(), self.run, interval = 50, repeat=True)
+        fig, axs = plt.subplots(2,8)
+        fig.suptitle('Vertically stacked subplots')
+        self.fftline = []
+        self.sigline = []
+        
+        for i in range(0,8):
+            fftline, = axs[0,i].plot(0, 0)
+            self.fftline.append(fftline)
+            sigline, = axs[1,i].plot(0, 0)
+            self.sigline.append(sigline)
+        self.ani = FuncAnimation(plt.gcf(), self.run, interval = 200, repeat=True)
 
-    def run(self, i):  
+    def run(self, x):  
         #print("plotting data")
-        #self.hLine.set_data(self._data.XData, self._data.YData)
-        self.hLine.set_data(self._data.freqs, self._data.mags)
-        self.hLine.axes.relim()
-        self.hLine.axes.autoscale_view()
+        for i in range(0,8):
+            self.sigline[i].set_data(self._data.XData[i], self._data.YData[i])
+            self.sigline[i].axes.relim()
+            self.sigline[i].axes.autoscale_view()
+        
+            self.fftline[i].set_data(self._data.freqs[i], self._data.mags[i])
+            self.fftline[i].axes.relim()
+            self.fftline[i].axes.autoscale_view()
 
 class Fetch(threading.Thread):
 
@@ -66,41 +84,64 @@ class Fetch(threading.Thread):
                 # print("oh: " + str(floats))
                 #print("updating data")
                 # add data to data class
-                self._data.XData.append(self._data.XData[-1] + 1)
-                self._data.YData.append((floats[1] * 2) - 1)
+                total = 0.0
+                for i in range(0,8):
+                    self._data.XData[i].append(self._data.XData[i][-1] + 1)
+                    self._data.YData[i].append((floats[i] * 2) - 1)
 
-                if (len(self._data.YData) > 100):
-                    if (len(self._data.YData) > 400):
-                        self._data.YData.pop(0)
-                        self._data.XData.pop(0)
+                    if (len(self._data.YData[i]) > 200):
+                        self._data.YData[i].pop(0) # remove first frequency
+                        self._data.XData[i].pop(0)
 
-                    x = self._data.YData
-                    t = self._data.XData
+                        x = self._data.YData[i]
+                        t = self._data.XData[i]
                     
-                    ft = np.fft.rfft(x)
-                    freqs = np.fft.rfftfreq(len(x), t[1]-t[0]) # Get frequency axis from the time axis
-                    mags = abs(ft) # We don't care about the phase information here
-                    self._data.freqs = freqs[1:]
-                    self._data.mags = mags[1:]
-
-                    inflection = np.diff(np.sign(np.diff(mags)))
-                    peaks = (inflection < 0).nonzero()[0] + 1
-                    peak = peaks[mags[peaks].argmax()]
-                    signal_freq = freqs[peak] # Gives 0.05
-                    print(str(signal_freq))
+                        ft = np.fft.rfft(x)
+                        freqs = np.fft.rfftfreq(len(x), 1/20) # Get frequency axis from the time axis
+                        mags = abs(ft) # We don't care about the phase information here
+                        self._data.freqs[i] = freqs[1:]
+                        self._data.mags[i] = mags[1:]
+                        
+                        try: 
+                            inflection = np.diff(np.sign(np.diff(mags)))
+                            peaks = (inflection < 0).nonzero()[0] + 1
+                            peak = peaks[mags[peaks].argmax()]
+                            signal_freq = freqs[peak]
+                            #print(str(i) + ": " + str(signal_freq))
+                            total = total + signal_freq
+                        except:
+                            print("oops")
                     
-                    #acf = np.correlate(self._data.YData, self._data.YData, 'same')[-len(self._data.XData):]
-                    #self._data.acf = acf
-                    #print(str(acf.argsort()))
-                    #inflection = np.diff(np.sign(np.diff(acf))) # Find the second-order differences
-                    #self._data.inflection = inflection
-                    #print(str(acf))
-                    #print(str(inflection))
-                    #peaks = (inflection < 0).nonzero()[0] + 1 # Find where they are negative
-                    #delay = peaks[acf[peaks].argmax()] # Of those, find the index with the maximum value
-                    #print("delay: " + str(delay))
+                        #acf = np.correlate(self._data.YData, self._data.YData, 'same')[-len(self._data.XData):]
+                        #self._data.acf = acf
+                        #print(str(acf.argsort()))
+                        #inflection = np.diff(np.sign(np.diff(acf))) # Find the second-order differences
+                        #self._data.inflection = inflection
+                        #print(str(acf))
+                        #print(str(inflection))
+                        #peaks = (inflection < 0).nonzero()[0] + 1 # Find where they are negative
+                        #delay = peaks[acf[peaks].argmax()] # Of those, find the index with the maximum value
+                        #print("delay: " + str(delay))
 
-print("oh")
+                #t = np.linspace(0, 10 * np.pi, 100)
+                #x = np.sin(t)
+                #self._data.XData[7] = t
+                #self._data.YData[7] = x
+
+                #ft = np.fft.rfft(x)
+                #freqs = np.fft.rfftfreq(len(x), 1/25) # Get frequency axis from the time axis
+                #mags = abs(ft) # We don't care about the phase information here
+                #self._data.freqs[7] = freqs[1:]
+                #self._data.mags[7] = mags[1:]
+                #inflection = np.diff(np.sign(np.diff(mags)))
+                #peaks = (inflection < 0).nonzero()[0] + 1
+                #peak = peaks[mags[peaks].argmax()]
+                #signal_freq = freqs[peak]
+                #print("freq: " + str(signal_freq))
+                print("avg: " + str(total/8))
+                liblo.send(target, "/ctrl", "cpssend", float(total/8))
+
+                
 data = Data()
 plotter = Plot(data)
 fetcher = Fetch(data)
