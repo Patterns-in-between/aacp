@@ -5,7 +5,7 @@ from pathlib import Path
 
 logdir = "logs"
 
-subname = b"adjusted"
+subnames = [b"adjusted", b"sensors", b"trained"]
 
 log = True
 
@@ -28,11 +28,14 @@ xpub_addr = 'tcp://slab.org:5555'
 context = zmq.Context()
 subscriberSocket = context.socket(zmq.SUB)
 subscriberSocket.connect(xpub_addr)
-subscriberSocket.setsockopt(zmq.SUBSCRIBE, subname)
+
+for subname in subnames:
+    subscriberSocket.setsockopt(zmq.SUBSCRIBE, subname)
+
 while True:
     if subscriberSocket.poll(timeout=1000):
         message = subscriberSocket.recv_multipart()
-        #print(str(message[0]))
+        # print(str(message[0]))
         msg = str(message[0]) #.decode("utf-8")
         msg = re.sub(r"^b'","",msg)
         msg = re.sub(r";.*$","",msg)
@@ -42,10 +45,22 @@ while True:
             logfh.write(logmsg)
             # Make sure it gets written
             logfh.flush()
-        
-        numbers = re.findall("\d+\.?\d*", msg)
-        for i, value in enumerate(numbers):
-            liblo.send(target, "/ctrl", "sensor" + str(i), float(value))
-        floats = map(float, numbers)
-        liblo.send(targetp5, "/all", *floats)
-        #print(numbers)
+
+        m = re.search("(\w+) (\w+) (.*)", msg)
+        if not m:
+            print("couldn't parse message: " + msg)
+        else:
+            source = m.group(1)
+            name = m.group(2)
+            numbers = re.findall("\d+\.?\d*", m.group(3))
+
+            if source == "trained" or source == "adjusted":
+                tag = ""
+                if source == "trained":
+                    tag = "t"
+                    
+                for i, value in enumerate(numbers):
+                    liblo.send(target, "/ctrl", name + tag + str(i), float(value))
+                floats = map(float, numbers)
+                liblo.send(targetp5, "/all", source, name, *floats)
+                #print(numbers)
