@@ -15,7 +15,7 @@ if log:
     print("Writing log to " + logname)
     logfh = open(os.path.join(logdir, logname), "w")
 
-    logfh.write("Log start: " + str(time.time_ns() * 1e-9) + "\n")
+    logfh.write("Log start: " + str(time.time()) + "\n")
 
 try:
     target = liblo.Address("localhost", 6010)
@@ -40,7 +40,7 @@ while True:
         msg = re.sub(r"^b'","",msg)
         msg = re.sub(r";.*$","",msg)
         if log:
-            logmsg = str(time.time_ns() * 1e-9) + " | " + msg + "\n"
+            logmsg = str(time.time()) + " | " + msg + "\n"
             #print(logmsg)
             logfh.write(logmsg)
             # Make sure it gets written
@@ -62,5 +62,5 @@ while True:
                 for i, value in enumerate(numbers):
                     liblo.send(target, "/ctrl", name + tag + str(i), float(value))
                 floats = map(float, numbers)
-                liblo.send(targetp5, "/all", source, name, *floats)
+                liblo.send(targetp5, "/" + source, name, *floats)
                 #print(numbers)
