@@ -9,6 +9,8 @@ subnames = [b"adjusted", b"sensors", b"trained"]
 
 log = True
 
+body_parts = ["lfoot", "rfoot", "lbelly", "rbelly", "lshoulder", "rshoulder", "lback", "rback"]
+
 if log:
     Path(logdir).mkdir(parents=True, exist_ok=True)
     logname = datetime.datetime.now().strftime("%Y%m%d-%H%M%S.txt")
@@ -61,6 +63,8 @@ while True:
                     
                 for i, value in enumerate(numbers):
                     liblo.send(target, "/ctrl", name + tag + str(i), float(value))
+                    print("send %s %.2f" % (name + tag + str(i), float(value)))
+                    #liblo.send(target, "/ctrl", name + tag + body_parts[i], float(value))
                 floats = map(float, numbers)
                 liblo.send(targetp5, "/" + source, name, *floats)
                 #print(numbers)

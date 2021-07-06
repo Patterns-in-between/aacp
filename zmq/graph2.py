@@ -9,9 +9,16 @@ import time
 import zmq
 import re
 import liblo
+import sys
 
 subname = b"adjusted"
 addr = 'tcp://slab.org:5555'
+
+if len(sys.argv) < 2:
+    print("deva or juan?")
+    exit(-1)
+
+person = sys.argv[1]
 
 try:
     target = liblo.Address("localhost", 6010)
@@ -34,7 +41,7 @@ class Plot():
 
         self._data = data
         fig, axs = plt.subplots(2,8)
-        fig.suptitle('Vertically stacked subplots')
+        fig.suptitle(person)
         self.fftline = []
         self.sigline = []
         
@@ -43,16 +50,17 @@ class Plot():
             self.fftline.append(fftline)
             sigline, = axs[1,i].plot(0, 0)
             self.sigline.append(sigline)
+            
         self.ani = FuncAnimation(plt.gcf(), self.run, interval = 200, repeat=True)
 
     def run(self, x):  
         #print("plotting data")
         for i in range(0,8):
             self.sigline[i].set_data(self._data.XData[i], self._data.YData[i])
+            self.fftline[i].set_data(self._data.freqs[i], self._data.mags[i])
+            
             self.sigline[i].axes.relim()
             self.sigline[i].axes.autoscale_view()
-        
-            self.fftline[i].set_data(self._data.freqs[i], self._data.mags[i])
             self.fftline[i].axes.relim()
             self.fftline[i].axes.autoscale_view()
 
@@ -78,21 +86,23 @@ class Fetch(threading.Thread):
                 msg = str(message[0]) #.decode("utf-8")
                 msg = re.sub(r"^b'","",msg)
                 msg = re.sub(r";.*$","",msg)
-                #print(msg)
 
-                if re.search("deva", msg):
-                    numbers = re.findall("\d+\.?\d*", msg)
+                if re.search(person, msg):
+                    #print(msg)
+                    numbers = re.findall("\d+[0-9\-e\.]*", msg)
                     floats = list(map(float, numbers))
                     
                     # print("oh: " + str(floats))
                     #print("updating data")
                     # add data to data class
                     total = 0.0
+                    maximum = 0.0
+                    signal_freqs = []
                     for i in range(0,8):
                         self._data.XData[i].append(self._data.XData[i][-1] + 1)
                         self._data.YData[i].append((floats[i] * 2) - 1)
                         
-                        if (len(self._data.YData[i]) > 200):
+                        if (len(self._data.YData[i]) > 150):
                             self._data.YData[i].pop(0) # remove first frequency
                             self._data.XData[i].pop(0)
                             
@@ -112,10 +122,18 @@ class Fetch(threading.Thread):
                                 signal_freq = freqs[peak]
                                 #print(str(i) + ": " + str(signal_freq))
                                 total = total + signal_freq
+                                if signal_freq > maximum:
+                                    maximum = signal_freq
+                                signal_freqs.append(signal_freq)
                             except:
                                 print("oops")
-                    print("avg: " + str(total/8))
-                    liblo.send(target, "/ctrl", "cpssend", float(total/8))
+                    print("avg: %.2f max: %.2f" % (total/8, maximum))
+                    if len(signal_freqs) == 8:
+                        print("%.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f" % tuple(signal_freqs))
+                        for x in range(0, 8):
+                            liblo.send(target, "/ctrl", "cps" + str(x), float(signal_freqs[x]))
+                    liblo.send(target, "/ctrl", "cpsavg", float(total/8))
+                    liblo.send(target, "/ctrl", "cpsmax", float(maximum))
 
                 
 data = Data()
