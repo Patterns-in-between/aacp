@@ -1,0 +1,18 @@
+
+espeakTarget :: Target
+espeakTarget = Target {oName = "espeak",
+                       oAddress = "127.0.0.1",
+                       oPort = 6050,
+                       oBusPort = Nothing,
+                       oLatency = 0.02,
+                       oWindow = Nothing,
+                       oSchedule = Live,
+                       oHandshake = False
+                      }
+
+espeakShape :: OSC
+espeakShape = OSC "/play" $ ArgList [("word", required),
+                                     ("language", sDefault "german"),
+                                     ("pitch", fDefault 32),
+                                     ("speed", fDefault 150)
+                                    ]
