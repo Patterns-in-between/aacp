@@ -24,11 +24,11 @@
 #X obj 297 157 t b f;
 #X obj 36 296 random 50;
 #X obj 389 122 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 6300 1;
+-1 -1 0 1;
 #X floatatom 76 322 5 0 0 0 - - -;
 #X obj 138 188 +~;
 #X obj 592 187 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 1700 1;
+-1 -1 12600 1;
 #X obj 138 227 wrap~;
 #X floatatom 250 185 5 0 0 0 - - -;
 #X obj 136 91 t a b;
@@ -50,6 +50,8 @@
 #X obj 288 532 dac~;
 #X obj 386 178 + 0.8;
 #X connect 0 0 2 0;
+#X connect 0 0 9 1;
+#X connect 0 0 13 0;
 #X connect 4 0 3 0;
 #X connect 5 0 6 0;
 #X connect 6 0 37 0;
