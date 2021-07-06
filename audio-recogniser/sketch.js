@@ -5,8 +5,7 @@ let classif = 0;
 
 // const classifier = (labelTensor.data())[0];
 
-
-let message = ["aaah", "eeeh", "iiih", "oooh", "uuuh", "yaah", "yeeh", "yiih", "yooo", "yuuh"]
+let message = ["aaah", "eeeh", "iiih", "oooh", "uuuh", "yaah", "yeeh", "yiih", "yooo", "yuuh", "taah", "teeh", "tiih", "tooh", "tuuh"]
 
 let deltaT = 250;
 let count =0;
@@ -15,16 +14,14 @@ function setup() {
  
   createCanvas(400, 400);
   
-   background(220);
+  background(220);
   startT = millis();
 }
 
 function draw() {
 
-  
   textSize(32);
-
-
+  
   let thisMessage;
   var label = document.getElementById('text-out');
   classif = parseInt(label.textContent);

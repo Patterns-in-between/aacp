@@ -24,7 +24,7 @@ function predictWord() {
 
 
 // One frame is ~23ms of audio.
-const NUM_FRAMES = 10;
+const NUM_FRAMES = 15;
 let examples = [];
 
 function collect(label) {
@@ -48,7 +48,7 @@ function collect(label) {
 
 function normalize(x) {
  const mean = -100;
- const std = 10;
+ const std = 15;
  return x.map(x => (x - mean) / std);
 }
 
@@ -58,7 +58,7 @@ let model;
 
 async function train() {
  toggleButtons(false);
- const ys = tf.oneHot(examples.map(e => e.label), 10);
+ const ys = tf.oneHot(examples.map(e => e.label), 15);
  const xsShape = [examples.length, ...INPUT_SHAPE];
  const xs = tf.tensor(flatten(examples.map(e => e.vals)), xsShape);
 
@@ -80,13 +80,13 @@ function buildModel() {
  model = tf.sequential();
  model.add(tf.layers.depthwiseConv2d({
    depthMultiplier: 8,
-   kernelSize: [NUM_FRAMES, 10],
+   kernelSize: [NUM_FRAMES, 15],
    activation: 'relu',
    inputShape: INPUT_SHAPE
  }));
  model.add(tf.layers.maxPooling2d({poolSize: [1, 2], strides: [2, 2]}));
  model.add(tf.layers.flatten());
- model.add(tf.layers.dense({units: 10, activation: 'softmax'}));
+ model.add(tf.layers.dense({units: 15, activation: 'softmax'}));
  const optimizer = tf.train.adam(0.01);
  model.compile({
    optimizer,
