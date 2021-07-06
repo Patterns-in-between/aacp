@@ -1,15 +1,15 @@
-var x1, x2, x3, x4, x5, x6;
+let x1 =0, x2 =0, x3 =0, x4 =0, x5 =0, x6 =0;
 
 let pts = [];
 let angle = 0;
-let coords = [[100, 100], [150, 350], [150, 200], [250, 200], [250, 350], [300,100]]
+let coords = [[200, 100], [250, 250], [150, 200], [250, 200], [250, 350], [300,100]]
 
 function setup() {
 	createCanvas(500, 500);
 	setupOsc(6011, 6012 );
 
 	 //Create 6 data trails 
-	for (let i=0; i< 6; i++) {
+	for (let i=0; i< 2; i++) {
 		pts.push(new Particle(coords[i][0], coords[i][1]));
 	}
 
@@ -24,16 +24,19 @@ function draw() {
 	stroke(0);
   	strokeWeight(4);
 
-	console.log(x1);
+	// console.log(x1, x2,x3);
 
 	// drawPoints();
 	// drawLinesMovement();
 	// drawCurvesMovement();
 	
-	for (let i=0; i < pts.length; i++) {
-		pts[i].show();
-		pts[i].update(x1);
-	}
+
+	pts[0].show();
+	pts[0].update(x1, x2, x3);
+
+	pts[1].show();
+	pts[1].update(x1, x2, x3);
+	
 	
 	angle += 0.1;
 
@@ -51,7 +54,7 @@ function receiveOsc(address, value) {
 		x6 = value[5];
 	}
 
-	// console.log(x3,x4);
+	// console.log(x1); 
 }
 
 function sendOsc(address, value) {
@@ -85,15 +88,21 @@ class Particle {
 	  this.x = x;
 	  this.y = y;
 	  this.history = [];
+	 
 
 
 	}
   
-	update(radius) {
+	update(x1_, x2_, x3_) {
 	
-	this.radius = radius;
-	this.x = this.x + 5*cos(angle) - sin(random(-1, 1));
-	this.y = this.y + 5*sin(angle) - cos(random(-1, 1)); 
+	this.x1 = (x1_ -0.5)*10;
+	this.x2 = (x2_ -0.5)*10;
+	this.x3 = (x3_)*2;
+
+	console.log(this.x1, this.x2, this.x3);
+
+	this.x = this.x + (this.x1) *cos(angle) + random(-this.x3, this.x3) ;
+	this.y = this.y + (this.x2) *sin(angle) + random(-this.x3, this.x3); 
 	
 
 	// wrap around
@@ -147,6 +156,8 @@ class Particle {
 	}
   }
 
+
+// Old code , delete ..? 
 
 
 function drawPoints() {
