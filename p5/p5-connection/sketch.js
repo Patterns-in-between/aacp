@@ -8,7 +8,7 @@ function setup() {
 	createCanvas(500, 500);
 	setupOsc(6011, 6012 );
 
-	 //Create 6 data trails 
+	 //Create 2 data trails 
 	for (let i=0; i< 2; i++) {
 		pts.push(new Particle(coords[i][0], coords[i][1]));
 	}
