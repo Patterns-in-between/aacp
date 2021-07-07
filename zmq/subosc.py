@@ -1,11 +1,11 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 
 import zmq, liblo, sys, re, datetime, os, time
 from pathlib import Path
 
 logdir = "logs"
 
-subnames = [b"adjusted", b"sensors", b"trained"]
+subnames = [b"adjusted", b"sensors", b"trained", b"sync"]
 
 log = True
 
@@ -48,12 +48,15 @@ while True:
             # Make sure it gets written
             logfh.flush()
 
-        m = re.search("(\w+) (\w+) (.*)", msg)
+        m = re.search("(\w+) (deva|juan)? *(.*)", msg)
         if not m:
             print("couldn't parse message: " + msg)
         else:
             source = m.group(1)
             name = m.group(2)
+            # default to deva if name is missing
+            if not name:
+              name = "deva"
             numbers = re.findall("\d+\.?\d*", m.group(3))
 
             if source == "trained" or source == "adjusted":
@@ -63,8 +66,8 @@ while True:
                     
                 for i, value in enumerate(numbers):
                     liblo.send(target, "/ctrl", name + tag + str(i), float(value))
-                    print("send %s %.2f" % (name + tag + str(i), float(value)))
+                    #print("send %s %.2f" % (name + tag + str(i), float(value)))
                     #liblo.send(target, "/ctrl", name + tag + body_parts[i], float(value))
                 floats = map(float, numbers)
                 liblo.send(targetp5, "/" + source, name, *floats)
-                #print(numbers)
+                print("send /%s %s %s" % (source, name, str(numbers)))
