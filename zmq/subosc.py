@@ -7,7 +7,7 @@ logdir = "logs"
 
 subnames = [b"adjusted", b"sensors", b"trained", b"sync"]
 
-log = True
+log = False
 
 body_parts = ["lfoot", "rfoot", "lbelly", "rbelly", "lshoulder", "rshoulder", "lback", "rback"]
 
