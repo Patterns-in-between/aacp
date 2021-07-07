@@ -1,11 +1,14 @@
 let x1 =0, x2 =0, x3 =0, x4 =0, x5 =0, x6 =0;
 
+let cycle =0, cycleMod =0, iteration=0;
+let mycanvas;
+
 let pts = [];
 let angle = 0;
 let coords = [[200, 100], [250, 250], [150, 200], [250, 200], [250, 350], [300,100]]
 
 function setup() {
-	createCanvas(500, 500);
+	mycanvas = createCanvas(500, 500);
 	setupOsc(6011, 6012 );
 
 	 //Create 2 data trails 
@@ -40,6 +43,15 @@ function draw() {
 	
 	angle += 0.1;
 
+	// On 4th cycle, take screenshot of svg..
+	if (cycleMod == 3) {
+
+		let formatted_number =  iteration;
+		// saveCanvas(mycanvas,"screenshot"+formatted_number,"svg");	
+		iteration++;
+
+	}
+
 }
 
 function receiveOsc(address, value) {
@@ -54,7 +66,12 @@ function receiveOsc(address, value) {
 		x6 = value[5];
 	}
 
-	// console.log(x1); 
+	else if (address == '/cycle') {
+		cycle = value[0];
+		cycleMod = cycle % 4;
+		console.log(cycleMod);
+	}
+
 }
 
 function sendOsc(address, value) {
@@ -99,7 +116,7 @@ class Particle {
 	this.x2 = (x2_ -0.5)*10;
 	this.x3 = (x3_)*2;
 
-	console.log(this.x1, this.x2, this.x3);
+	// console.log(this.x1, this.x2, this.x3);
 
 	this.x = this.x + (this.x1) *cos(angle) + random(-this.x3, this.x3) ;
 	this.y = this.y + (this.x2) *sin(angle) + random(-this.x3, this.x3); 
@@ -157,85 +174,3 @@ class Particle {
   }
 
 
-// Old code , delete ..? 
-
-
-function drawPoints() {
-
-
-	// shoulder 
-	point(200*x1 , 100);
-
-	// left foot
-	point (250*x2, 300); 
-	
-	// left upper leg
-	point(250*x3, 200);
-
-	// right upper leg
-	point(350*x4, 200);
-
-	// right foot
-	point(350*x4, 300);
-
-	// right shoulder
-	point(400*x5 , 100);
-
-}
-
-
-function drawLinesMovement() {
-
-	strokeWeight(2);
-	line(100*x1 , 100, 150*x2, 300);
-	line(150*x2, 300, 150*x3, 200);
-	line(150*x3, 200, 250*x4, 200);
-	line(250*x4, 200, 250*x4, 300 );
-	line(250*x4, 200, 300*x5, 100);
-	line( 300*x5 , 100, 100*x1 , 100);
-	
-
-	// strokeWeight(2);
-	// line(100*x1+10, 110, 150*x2+10, 310);
-	// line(150*x2+10, 310, 150*x3+10, 210);
-	// line(150*x3+10, 210, 250*x4+10, 210);
-	// line(250*x4+10, 210, 250*x4+10, 310 );
-	// line(250*x4+10, 210, 300*x5+10, 110);
-	// line( 300*x5+10, 110, 100*x1+10, 110);
-
-	// strokeWeight(1);
-	// line(100*x1+10, 120, 150*x2+10, 320);
-	// line(150*x2+10, 320, 150*x3+10, 220);
-	// line(150*x3+10, 220, 250*x4+10, 220);
-	// line(250*x4+10, 220, 250*x4+10, 320 );
-	// line(250*x4+10, 220, 300*x5+10, 120);
-	// line( 300*x5+10, 120, 100*x1+10, 120);
-
-
-}
-
-
-function drawCurvesMovement() {
-
-	strokeWeight(2);
-	bezier(constrain(85/x1, 0, height), 
-			constrain(20/x2, 0, height), 
-			constrain( 10/x3, 0, height),
-			constrain( 10/x3, 0, height),
-			constrain(  90/x4, 0, height),
-			constrain( 90/x4, 0, height),
-			constrain( 15/x5, 0, height),
-			constrain( 80/x6, 0, height));
-
-
-	
-	// bezier(constrain( 80/x1, 0, height), 
-	// 		constrain(15/x2, 0, height), 
-	// 		constrain( 90/x3, 0, height),
-	// 		constrain( 90/x3, 0, height),
-	// 		constrain(  10/x4, 0, height),
-	// 		constrain( 10/x4, 0, height),
-	// 		constrain( 20/x5, 0, height),
-	// 		constrain( 85/x6, 0, height));
-
-}
