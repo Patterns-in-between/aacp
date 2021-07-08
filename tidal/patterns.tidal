@@ -1,0 +1,38 @@
+
+d1 $ sound "[bd(7,12,<3 5>)]*2%3"
+  # legato 1 # lpf 1000 # lpq 0.1
+  # room 0.3 # sz 0.3
+
+d2 $ chunk 4 (hurry 2) $ sound "phkick:5!7 clap:5" # speed "2 4"
+
+d3 $ slow 2 $ (jux rev $ chunk 4 (hurry 2) $ n "0 .. 15"
+  # sound "ord")
+  |+ n "<0 0 0 4>"
+  # legato 1
+  # gain 1.6
+
+
+
+d4 $ jux (rev . (# n "<1 1 2 2 3 0>") . (# s "devalong")) $ fast 2 $ splice 32 (every 2 (slow 2) $ segment 4 $ (fast 2 $ floor <$> range 0 4 perlin))
+  $  sound "<devalong>"
+  |* speed "[1,1.02]"
+  # djf 0.85
+  # room 0.3
+  # sz 0.3
+  # n "<3 2 1>"
+  # gain 1.4
+
+
+d5 $ jux press $
+  stut 4 0.25 "s"
+  $ sound "{phkick:5*2 ~ [~ clap:4] ~ snare:4 ~ ~ snare:5}%4"
+  # speed 2
+  # gain 0.8
+
+
+
+d12 $ cps (segment 32 $ range 0.8 1.1 $ perlin)
+
+
+
+
