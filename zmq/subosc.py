@@ -1,15 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import zmq, liblo, sys, re, datetime, os, time
 from pathlib import Path
 
 logdir = "logs"
 
-subnames = [b"adjusted", b"sensors", b"trained", b"sync"]
+subnames = [b"carpet", b"carpet_list", b"hair_L", b"hair_S", b"knee_J", b"knee_D"]
 
 log = False
 
-body_parts = ["lfoot", "rfoot", "lbelly", "rbelly", "lshoulder", "rshoulder", "lback", "rback"]
+# body_parts = ["lfoot", "rfoot", "lbelly", "rbelly", "lshoulder", "rshoulder", "lback", "rback"]
 
 if log:
     Path(logdir).mkdir(parents=True, exist_ok=True)
@@ -26,7 +26,7 @@ except (liblo.AddressError, err):
     print(str(err))
     sys.exit()
 
-xpub_addr = 'tcp://slab.org:5555'
+xpub_addr = 'tcp://192.168.0.10:5555'
 context = zmq.Context()
 subscriberSocket = context.socket(zmq.SUB)
 subscriberSocket.connect(xpub_addr)
@@ -37,10 +37,12 @@ for subname in subnames:
 while True:
     if subscriberSocket.poll(timeout=1000):
         message = subscriberSocket.recv_multipart()
-        # print(str(message[0]))
         msg = str(message[0]) #.decode("utf-8")
         msg = re.sub(r"^b'","",msg)
         msg = re.sub(r";.*$","",msg)
+
+
+        # print(msg)
         if log:
             logmsg = str(time.time()) + " | " + msg + "\n"
             #print(logmsg)
@@ -48,26 +50,35 @@ while True:
             # Make sure it gets written
             logfh.flush()
 
-        m = re.search("(\w+) (deva|juan)? *(.*)", msg)
-        if not m:
-            print("couldn't parse message: " + msg)
-        else:
-            source = m.group(1)
-            name = m.group(2)
-            # default to deva if name is missing
-            if not name:
-              name = "deva"
-            numbers = re.findall("\d+\.?\d*", m.group(3))
-
-            if source == "trained" or source == "adjusted":
-                tag = ""
-                if source == "trained":
-                    tag = "t"
-                    
-                for i, value in enumerate(numbers):
-                    liblo.send(target, "/ctrl", name + tag + str(i), float(value))
-                    #print("send %s %.2f" % (name + tag + str(i), float(value)))
-                    #liblo.send(target, "/ctrl", name + tag + body_parts[i], float(value))
-                floats = map(float, numbers)
-                liblo.send(targetp5, "/" + source, name, *floats)
-                print("send /%s %s %s" % (source, name, str(numbers)))
+        m = re.search("carpet ([0-9\.]+) ([0-9\.]+)", msg)
+        if m:
+            on = m.group(1)
+            number = m.group(2)
+            
+            liblo.send(target, "/ctrl", "carpet", float(number))
+            continue
+        
+        m = re.search("carpet_list ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        if m:
+            for i in range(0,13):
+                # print("Sending %s = %f" % ("carpet%d" % (i), float(m.group(i+1))))
+                liblo.send(target, "/ctrl", ("carpet%d" % (i)), float(m.group(i+1)))
+            continue
+        
+        m = re.search("hair_L ([0-9\.]+)", msg)
+        if m:
+            a = m.group(1)
+#            b = m.group(2)
+            
+            liblo.send(target, "/ctrl", "hairL", float(a))
+#            print("Sending hairL %f" % (float(a)))
+   
+        m = re.search("knee_D ([0-9\.]+) ([0-9\.]+)", msg)
+        if m:
+            a = m.group(1)
+            b = m.group(2)
+            
+            liblo.send(target, "/ctrl", "kneeDa", float(a))
+            liblo.send(target, "/ctrl", "kneeDb", float(b))
+            print("Sending kneeD %f %f" % (float(a), float(b)))
+    
