@@ -1,0 +1,17 @@
+#N canvas 1431 384 768 396 12;
+#X obj 297 233 dac~;
+#X obj 210 12 adc~;
+#X obj 233 60 nn~ /home/alex/models/devajuan.ts encode, f 65;
+#X obj 255 147 nn~ /home/alex/models/devajuan.ts decode, f 65;
+#X connect 1 0 2 0;
+#X connect 1 1 2 0;
+#X connect 2 0 3 0;
+#X connect 2 1 3 1;
+#X connect 2 2 3 2;
+#X connect 2 3 3 3;
+#X connect 2 4 3 4;
+#X connect 2 5 3 5;
+#X connect 2 6 3 6;
+#X connect 2 7 3 7;
+#X connect 3 0 0 0;
+#X connect 3 0 0 1;

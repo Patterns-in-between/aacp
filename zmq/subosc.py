@@ -5,7 +5,7 @@ from pathlib import Path
 
 logdir = "logs"
 
-subnames = [b"carpet", b"carpet_list", b"hair_L", b"hair_S", b"knee_J", b"knee_D"]
+subnames = [b"carpet", b"carpet_list_bang", b"hair_L", b"hair_S", b"knee_J", b"knee_D"]
 
 log = False
 
@@ -58,10 +58,10 @@ while True:
             liblo.send(target, "/ctrl", "carpet", float(number))
             continue
         
-        m = re.search("carpet_list ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        m = re.search("carpet_list_bang ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
             for i in range(0,13):
-                # print("Sending %s = %f" % ("carpet%d" % (i), float(m.group(i+1))))
+                print("Sending %s = %f" % ("carpet%d" % (i), float(m.group(i+1))))
                 liblo.send(target, "/ctrl", ("carpet%d" % (i)), float(m.group(i+1)))
             continue
         
