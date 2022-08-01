@@ -121,29 +121,6 @@ class Particle {
 	this.x = this.x + (this.x1) *cos(angle) + random(-this.x3, this.x3) ;
 	this.y = this.y + (this.x2) *sin(angle) + random(-this.x3, this.x3); 
 	
-
-	// wrap around
-	// if (this.x> width +50) {
-	// 	this.x = 0;
-	// }
-
-	// if (this.x < -50) {
-	// 	this.x = width;
-	// }
-
-		
-	// if (this.y>height+50) {
-	// 	this.y = 0;
-	// }
-
-	// if (this.y < -50) {
-	// 	this.y = height;
-	// }
-
-
-	
-	//   this.x = map(cos(angle), -1, 1, this.x, this.y);
-	//   this.y = map(sin(angle), -1, 1, this.x, this.y);
   
 	  let v = createVector(this.x, this.y);
 	
