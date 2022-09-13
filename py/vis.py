@@ -4,7 +4,7 @@ import sys, pygame, math
 
 import zmq, liblo, re, datetime, os, time
 
-subnames = [b"carpet", b"carpet_list", b"hair_L", b"hair_S", b"knee_J", b"knee_D", b"rand"]
+subnames = [b"face", b"hand", b"carpet_list", b"hair_L", b"hair_S", b"knee_J", b"knee_D", b"rand"]
 
 context = zmq.Context()
 subscriberSocket = context.socket(zmq.SUB)
@@ -34,12 +34,30 @@ def tick_callback(path, args):
     cycletime = time.time()
     #print("tick %d cps %f cycle %f" % (tick,cps,cycle))
 
+def glove_callback(path, args):
+    global tick, cps, cycle, cycletime
+    now = cycle_now()
+    if not "handosc" in history:
+        history["handosc"] = []
+    value = (args[0] - 0.2) * 2.5
+    
+    history['handosc'].append((now, value))
+
+def fallback(path, args, types, src):
+    print("got unknown message '%s' from '%s'" % (path, src.url))
+    for a, t in zip(args, types):
+        print("argument of type '%s': %s" % (t, a))
+
 try:
     osc_server = liblo.Server(1234)
 except liblo.ServerError as err:
     print(err)
     sys.exit()
 osc_server.add_method("/tick", "iff", tick_callback)
+
+osc_server.add_method("/glove", "ffff", glove_callback)
+
+osc_server.add_method(None, None, fallback)
 
 for subname in subnames:
     subscriberSocket.setsockopt(zmq.SUBSCRIBE, subname)
@@ -69,8 +87,9 @@ while 1:
 
     now = cycle_now()
 
-    #key = 'carpet'
-    key = 'rand'
+    #key = 'handosc'
+    #key = 'rand'
+    key = 'face'
     
     if key in history:
         # clear out old history
@@ -113,7 +132,7 @@ while 1:
             else:
                 averages.append(0)
         mini = " ".join(map(str, averages))
-        liblo.send(osc_target, "/ctrl", "carpetp", mini)        
+        liblo.send(osc_target, "/ctrl", "facep", mini)        
         #print(averages)
         #print("seg %d len %d" % (segments, len(averages)))
         
@@ -154,15 +173,15 @@ while 1:
 
         now = cycle_now()
         
-        m = re.search("carpet ([0-9\.]+) ([0-9\.]+)", msg)
+        m = re.search("face ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
-            name = "carpet"
+            name = "face"
             a = float(m.group(1))
             b = float(m.group(2))
-            print(b)
+            print("ah: " + str(a))
             if not name in history:
                 history[name] = []
-            history[name].append((now, b))
+            history[name].append((now, a))
         if msg == 'rand':
             if not 'rand' in history:
                 history['rand'] = []
