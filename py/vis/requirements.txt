@@ -1,0 +1,4 @@
+pygame >= 2.1.2
+LinkPython >= 0.1.1
+pyliblo3 >= 0.11.3
+pyzmq >= 23.2.1
