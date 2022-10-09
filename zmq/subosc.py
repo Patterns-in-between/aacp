@@ -5,7 +5,8 @@ from pathlib import Path
 
 logdir = "logs"
 
-subnames = [b"carpet", b"carpet_list_bang", b"hair_L", b"hair_S", b"knee_J", b"knee_D"]
+# subnames = [b"carpet", b"carpet_list_bang", b"hair_L", b"hair_S", b"knee_J", b"knee_D"]
+subnames = [b"textile1", b"textile2", b"textile3", b"deva", b"juan"]
 
 log = False
 
@@ -42,7 +43,9 @@ while True:
         msg = re.sub(r";.*$","",msg)
 
 
-        # print(msg)
+        # print(msg) 
+
+
         if log:
             logmsg = str(time.time()) + " | " + msg + "\n"
             #print(logmsg)
@@ -57,7 +60,77 @@ while True:
             
             liblo.send(target, "/ctrl", "carpet", float(number))
             continue
-        
+
+        m = re.search("textile1 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        if m:
+            a = m.group(1)
+            b = m.group(2)
+            c = m.group(3)
+            d = m.group(4)
+            
+            liblo.send(target, "/ctrl", "textile1a", float(a))
+            liblo.send(target, "/ctrl", "textile1b", float(b))
+            liblo.send(target, "/ctrl", "texstile1c", float(c))
+            liblo.send(target, "/ctrl", "textile1d", float(d))
+            # print("Sending textile1 %f %f %f %f" % (float(a), float(b), float(c), float(d)))
+            continue
+
+        m = re.search("textile2 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        if m:
+            a = m.group(1)
+            b = m.group(2)
+            c = m.group(3)
+            d = m.group(4)
+            
+            liblo.send(target, "/ctrl", "textile2a", float(a))
+            liblo.send(target, "/ctrl", "textile2b", float(b))
+            liblo.send(target, "/ctrl", "textile2c", float(c))
+            liblo.send(target, "/ctrl", "textile2d", float(d))
+            # print("Sending textile2 %f %f %f %f" % (float(a), float(b), float(c), float(d)))
+            continue
+
+
+        m = re.search("textile3 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        if m:
+            a = m.group(1)
+            b = m.group(2)
+            c = m.group(3)
+            
+            liblo.send(target, "/ctrl", "textile3a", float(a))
+            liblo.send(target, "/ctrl", "textile3b", float(b))
+            liblo.send(target, "/ctrl", "textile3c", float(c))
+            # print("Sending textile3 %f %f %f" % (float(a), float(b), float(c)))
+            continue
+
+        m = re.search("deva ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg) 
+        if m:
+            a = m.group(1)
+            b = m.group(2)
+            c = m.group(3)
+            d = m.group(4)
+            
+            liblo.send(target, "/ctrl", "deva1a", int(a))
+            liblo.send(target, "/ctrl", "deva1b", float(b))
+            liblo.send(target, "/ctrl", "deva2a", int(c))
+            liblo.send(target, "/ctrl", "deva2b", float(d))
+            print("Sending deva %i %f %i %f" % (int(a), float(b), int(c), float(d)))
+            continue
+
+        m = re.search("juan ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg) 
+        if m:
+            a = m.group(1)
+            b = m.group(2)
+            c = m.group(3)
+            d = m.group(4)
+            
+            liblo.send(target, "/ctrl", "juan1a", int(a))
+            liblo.send(target, "/ctrl", "juan1b", float(b))
+            liblo.send(target, "/ctrl", "juan2a", int(c))
+            liblo.send(target, "/ctrl", "juan2b", float(d))
+            print("Sending juan %i %f %i %f" % (int(a), float(b), int(c), float(d)))
+            continue
+
+
         m = re.search("carpet_list_bang ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
             for i in range(0,13):
@@ -82,3 +155,5 @@ while True:
             liblo.send(target, "/ctrl", "kneeDb", float(b))
             print("Sending kneeD %f %f" % (float(a), float(b)))
     
+
+       

@@ -9,7 +9,7 @@ import zmq, liblo, re, datetime, os, time
 
 import linkclock
 
-subnames = [b"face", b"hand", b"carpet_list", b"hair_L", b"hair_S", b"knee_J", b"knee_D", b"rand"]
+subnames = [b"textile1", b"textile2", b"textile3", b"deva",b"face", b"hand", b"carpet_list", b"hair_L", b"hair_S", b"knee_J", b"knee_D", b"rand"]
 
 context = zmq.Context()
 subscriberSocket = context.socket(zmq.SUB)
@@ -18,7 +18,7 @@ subscriberSocket = context.socket(zmq.SUB)
 # subscriberSocket.connect('tcp://192.168.0.10:5555')
 subscriberSocket.connect('tcp://127.0.0.1:5555')
 
-osc_target = liblo.Address("localhost", 6010)
+osc_target = liblo.Address("localhost", 6060)
 
 half_pi = math.pi/2
 

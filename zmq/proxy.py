@@ -25,9 +25,9 @@ while True:
     event = dict(poller.poll(1000))
     if xpub_socket in event:
         message = xpub_socket.recv_multipart()
-        #print("[BROKER] xpub_socket recv message: %r" % message)
+        print("[BROKER] xpub_socket recv message: %r" % message)
         xsub_socket.send_multipart(message)
     if xsub_socket in event:
         message = xsub_socket.recv_multipart()
-        #print("[BROKER] xsub_socket recv message: %r" % message)
+        print("[BROKER] xsub_socket recv message: %r" % message)
         xpub_socket.send_multipart(message)
