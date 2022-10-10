@@ -70,7 +70,7 @@ while True:
             
             liblo.send(target, "/ctrl", "textile1a", float(a))
             liblo.send(target, "/ctrl", "textile1b", float(b))
-            liblo.send(target, "/ctrl", "texstile1c", float(c))
+            liblo.send(target, "/ctrl", "textile1c", float(c))
             liblo.send(target, "/ctrl", "textile1d", float(d))
             # print("Sending textile1 %f %f %f %f" % (float(a), float(b), float(c), float(d)))
             continue
