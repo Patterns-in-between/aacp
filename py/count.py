@@ -15,8 +15,8 @@ threshold = 0.1
 digits = 10
 
 # 192.168.0.10 is the raspberry pi
-# subscriberSocket.connect('tcp://192.168.0.10:5555')
-subscriberSocket.connect('tcp://127.0.0.1:5555')
+subscriberSocket.connect('tcp://192.168.0.10:5555')
+# subscriberSocket.connect('tcp://127.0.0.1:5555')
 
 person_id = 1
 for subname in subnames:
