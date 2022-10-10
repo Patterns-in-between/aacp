@@ -3,7 +3,7 @@ d1 $ stack [sound "<bd [~ bd] [bd ~ ~ bd] [~ bd bd ~]> [sd <~ bd [~ bd] ~>]",
             # speed 2
            ]
            # cps 0.38
-
+  
 
 d1 $ chunk 4 (hurry 2) 
    $ iter 4 $ n "0 1 [~ 1] 0 0 [2 4] 3 4*2 1" # sound "cpu"
@@ -11,6 +11,44 @@ d1 $ chunk 4 (hurry 2)
 
 d1 $ loopAt 4 $ chop 64 $ sound "bev2:1"
   # gain 1.1
+
+d1 $ fast 1 $ gain (cP "handp" |+ 0.5) # sound "claus:5" # n "0 .. 15"
+
+d1 silence
+
+d1 $ jux press $ fast "1 1.5" $ iter 4 $ speed (cP "handp" + "[1.4,1.5,0.25]") # (iter 4 $ sound "claus:8:5 [deva:6 deva:7] devalong:4 devabreath:3") # legato 1
+  # room 0.3
+  # sz 0.5
+  # gain 1
+  |+ n "<0 3 4 6>"
+
+
+
+d2 $ chunk 4 (hurry 2) $ sound "{~ clap:4 ~ clap:5*2 ~ cpu:4*4 ~ cpu:4}%4"
+   # room 0.4 # sz 0.8
+   # speed ("^hairL" |* 10)
+   # pan 0
+
+
+
+
+d1 silence
+
+d3 $ press $ chunk 4 (hurry 2) $ sound "{~ devalong:9 ~ clap:5*2 ~ cpu:4 ~ cpu:4}%4"
+   # room 0.4 # sz 0.8
+   # panbus 3 ("^hairS" |* 10)
+   # speed ("^hairS" |* 10)
+   # pan 1 # legato 4
+
+d2 silence
+
+
+
+
+
+
+
+d1 $ sound "bd"
 
 hush
 
@@ -109,7 +147,7 @@ d1 $ chunk 4 (hurry 0.5) $ (s "[devabreath, juanbreath]" # legato 1) >| (chunk 4
 ] |+ n "<100 300 500 50>" # gain 1.1
   -- # delay 0.9 # delayt (1/3) 
   # lock 1 # delayfb 0.3 # gain 1.6)
-  # legato 0.25
+  # legato 0.25 
   |+ n 2
 
 
@@ -144,7 +182,39 @@ tickShape = OSC "/tick" $ ArgList [("tick", iDefault 0),
 
 tidal2 <- startStream defaultConfig [(tickTarget, [tickShape])] 
 
-streamReplace tidal2 1 $ pI "tick" "0 .. 15"
+streamReplace tidal2 1 $ pF "tick" "0 .. 15"
+
+setcps 0.23
+
+d1 $ speed (cP "facep") # sound "claus:1"
+  # djf 0.9
+
+rgbTarget :: Target
+rgbTarget = Target {oName = "Rgb",
+                     oAddress = "127.0.0.1",
+                     oPort = 1235,
+                     oBusPort = Nothing,
+                     oLatency = 0.02,
+                     oWindow = Nothing,
+                     oSchedule = Live,
+                     oHandshake = False
+                    }
+
+rgbShape :: OSC
+rgbShape = OSC "/rgb" $ ArgList [("red", iDefault 0),
+                                 ("green", iDefault 0),
+                                 ("blue", iDefault 0)
+                                ]
+
+
+
+
+tidal3 <- startStream defaultConfig [(rgbTarget, [rgbShape])] 
+
+streamReplace tidal3 1 $
+  pI "red" "255"
+  # pI "green" "255"
+  # pI "blue" "255"
 
 
 d1 $ gain (cP "carpetp" |* 2) # s "bd ! ! ! ! clap:4"
@@ -153,7 +223,7 @@ d1 $ sound "bd(3,8)" # gain "^hello"
 
 hush
 
-setcps $ 150/120/4
+setcps $ 45/120/4
 
 d1 $ sound "bd*8"
 
@@ -199,4 +269,357 @@ d12 $ cps (segment 32 $ range 0.8 1.1 $ perlin)
 
 
 
+d3 $ slow 4 $ struct "t(3,16,<0 2>)" $ (off 0.01 ((|+ n 16) . (|+ speed "<1.5 2 1.75>")) $ off 0.01 (|+ n 7) $ off 0.01 (|+ n 3) $ off 0.01 (|+ n 1) $ iter 4 $ jux press $ mask "t(<5 7>,16,<2 4>)"
+  $ (slice 16 (segment 8 ((floor <$> (cF 1 "hand1" |* 300))))  $ sound "devalong"
+  # gain 1.6 # legato 8)
+  |+ pan saw)
+  |* note "<0 2 5 7>" -- # accelerate "-0.25"
+  # djf "0.97" -- # room 0.3 # sz 0.9
 
+d6 $ jux (press) $ chunk 4 (hurry "<2 1.5 0.75>")
+  $ off 0.125 (|+ n 2) $ off "<0.25 e>" (|* speed 1.5)
+  $ slow 4 $ fast (16/12) $ n "3(7,12,<3 5>)" # sound "devalong"
+  # squiz 2 # room 0.6 # sz 0.5 # legato 0.5
+  |+ note "<0 2 7>" # gain 1.2
+  # djf 0.9
+all id
+
+d1 $ n "0 .. 15" # sound "cpu2"
+
+d2 $ jux rev $ iter 4 $ loopAt 2 $ chop 32 $ sound "shackup"
+
+all $ ply ((toRational . floor) <$> (cP "handp" |* 16))
+ . (# speed ((cP "handp" |* 2) |+ 0.5)) . (# squiz 1.3) . (# djf (cP "handp" |* 2))
+
+
+
+d2 $ "~ clap:5"
+
+let x :: Pattern Double
+    x = slow 2 ((sine2 *  "^bang8") /2)+1
+in
+all $ (while ((>0.5) <$> "^bang12") (0.25 <~))
+        . (while ((>0.5) <$> "^bang11") (0.125 <~))
+        . (while ((>0.5) <$> "^bang10") (jux rev))
+        . (# squizbus 9 ("^bang9" |+ 0.5))
+        . (# (panbus 8 x # speed x))
+        . (while ((>0.5) <$> "^bang7") (chunk 4 (hurry 2)))
+        . (# (delaybus 6 "^bang6" # lock 1 # delayt (1/6) # delayfb 0.5))
+
+
+d1 $ jux rev $ slow 2 $ n "0 1*2 2*3 3*4 4*5 5*6 6*7 7*8" # sound "cpu" # djf 0.8 
+
+d1 $ sometimes (arp "updown") $ off "<0.25 0.75>" (|+ n "c'maj") $ superimpose rev $ slow 4 $ n "{50 ~ 50 ~ [50 62]}%4" # sound "rash"
+o0yiyiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii6oo0uy6oooooooooooooooooooooooooooooooooooooooooooooo9i[=-pppppppppppppppppppppppiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii88p8  # lpf 2000 # lpq 0.3 # room 0.3 # sz 0.9
+  # gain 0.75
+#]#op=oooooo]0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009p
+setcps $ 135 / 120 / 2
+
+hush
+
+d1 $ fast 8 $ slice 64 (floor <$> ("^carpet11" * 64 :: Pattern Double)) $ sound "devalong:14"
+  |+ n (Note <$> ("^carpet11" * 64 :: Pattern Double))
+  |+ speed ("^carpet12" |+ 0.5 :: Pattern Double)
+
+
+d1 $
+  (striate 64 $ sound "devalong:1 devalong:4")
+  # n "<0 1 2 3 4 5 6 7>"
+  # speed 0.5
+  # fadeTime 0.3
+
+d1 silence
+
+d2 silence
+
+d2 $ sound "phkick:2 [~ bd] psnare:4 [~ bd] cpu!4"
+  # n "<0 .. 7>"
+  # speed 1
+
+d1 $ sound "bd"
+
+all id
+
+
+hush
+
+
+linput = pI "linput"
+lname = pS "lname"
+
+d1 $ n "<0 .. 7>" # s "looper" 
+
+d2 $ off "<0.25 0.5>" (|+ note 7) $ mask "t f"$  (0.1 <~) $ jux (rev . (# vowel "<i o>")) $ chop 2 $ hurry "0.75 1" $ n "<0 .. 7>" # s "loop"
+  # gain 1.234rey74yr66666666667u6u6r45ew332q12wwwwwwwwwwwwwwwwwwwwwe3333333333333333333333333rythuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuujj # djf 0.8 |* speed "[1.5,1.25]" # gain 1.3 # room 0.4 # sz 0.95
+  # delay 1 # delayt (1/3) # lock 1 # delayfb 0.7
+
+d1 silence
+
+d2 $ jux rev $ chunk 4 (hurry 2) $ struct "t(5,8,<0 2>)" $ n "<0 .. 7>" # sound "loop" # speed "0.5" # djf 0.5 # room 0.9 # sz 0.99 # gain 1.5
+
+d6 $ n "0 1 2 3 4 5 6 7" # s "looper" 
+
+once $ n "loop:0*8 ~"
+
+d7 $ iter 4 $ n "0 1 2 3 4 5 6 7" # s "loop"
+   # gain 1
+
+hush
+
+d2 $ mask (iter 4 "[t f] f f f f f") $ (jux rev $ chop 32 $ (0.01 <~ (n "0 1 2 3 4 5 6 7" # s "loop"))
+  # gain 1.1 # fadeTime 0.4)
+  # speed (slow 8 $ sine + 0.5) # djf 0.9 # room 0.2 # sz 0.99
+-- # vowel "a i o"
+
+d2 silence
+  
+
+  # djf "^faceb"
+
+hush
+
+all id
+
+d1 $ sound "bd"
+
+hush
+
+d1 silence
+
+d2 silence
+
+d3 $ sound "phkick(3,8)"
+
+hush
+
+d3 silence
+d1 $ sound "bd"
+
+hush
+
+setcps $ (150/4/60)
+
+
+
+d11 $ slow 2 $ n "0 .. 7" # sound "loop"
+   # gain 1.5
+
+hush
+
+d2 silence
+
+
+
+d2 $ slow 2 $ n "0 .. 7" # sound "looper"
+
+hush
+
+d1 $ slow 4 $ off 0.25 (|+ n 8) $  slow 2 $ struct "t*4 [t*2 t t]@2 t" $ sound "[juanbreath,devabreath]"
+  # n "<0 1 2 3 4 5 6>" # legato 1 # squiz ("^facea" |* 3) # djf 0.9
+  # room 0.4 # sz 0.9
+
+
+d2 $ slow 2 $ slow 2 $ n "0 1*2 2*3 3*4" # sound "[juanbreath,kimkim]" # legato 1
+  |+ n 9 # speed 2
+  # squiz ("^faceb" |* 4)
+
+d1 $ pan "0 1" # sound "bd" # gain 1.3
+
+
+d11 $ sound "wobble"
+
+
+setcps $135/60/4
+
+
+
+let x :: Pattern Double
+    x = slow 2 ((sine2 *  "^bang8") /2)+1
+in
+all $ (while ((>0.5) <$> "^bang12") (0.25 <~))
+        . (while ((>0.5) <$> "^bang11") (0.125 <~))
+        . (while ((>0.5) <$> "^bang10") (jux rev))
+        . (# squizbus 9 ("^bang9" |+ 0.5))
+        -- . (# (panbus 8 x # speed x))
+        . (while ((>0.5) <$> "^bang7") (chunk 4 (hurry 2)))
+        . (# (delaybus 6 "^bang6" # lock 1 # delayt (1/6) # delayfb 0.5))
+
+
+
+
+
+-- breathfold
+let thresh = 0.5
+in
+d1 $ chunk 4 (hurry 0.5) $ (s "[devabreath, juanbreath]" # legato 1) >| (chunk 4 (ply 4) $ stack [
+  mask ((> thresh) <$> carpet 0) $ n "{0 ~ ~ 0 ~ 0 ~ }%4" # pani 0,
+  mask ((> thresh) <$> carpet 1) $ n "{1 ~ [1 1]@3 ~ ~ ~}%4" # pani 1,
+  mask ((> thresh) <$> carpet 2) $ n "{2 ~ 2 ~ 2*2 ~}%4" # pani 2 # legato 1,
+  mask ((> thresh) <$> carpet 3) $ n "{3 ~ ~ 3 ~ 3}%4" # pani 3,
+  mask ((> thresh) <$> carpet 4) $ n "{4 ~ ~ 4}%4" # pani 4 # legato 8,
+  mask ((> thresh) <$> carpet 5) $ n "{5 ~ ~ [5 5] 5}%4" # pani 5,
+  mask ((> thresh) <$> carpet 6) $ n "{6 6 ~ 6*2}%6" # pani 6,
+  mask ((> thresh) <$> carpet 7) $ n "{7 ~ ~ 7 7}%4" # pani 7,
+  mask ((> thresh) <$> carpet 8) $ n "{8 ~ 8 ~}%4" # pani 8 # legato 4,
+  mask ((> thresh) <$> carpet 9) $ n "{9 ~ 9 ~ [~ 9]}%4" # pani 9,
+  mask ((> thresh) <$> carpet 10) $ n "{10 ~ ~ 10 ~}%4" # pani 10,
+  mask ((> thresh) <$> carpet 11) $ n "{11 ~ ~ 11 ~ 11}%4" # pani 11,
+  mask ((> thresh) <$> carpet 12) $ n "{12 ~ 12 ~ 12}%4" # pani 12
+] |+ n "<100 300 500 50>" # gain 1.1
+  -- # delay 0.9 # delayt (1/3) 
+  # lock 1 # delayfb 0.3 # gain 1.6)
+  # legato 0.25 
+  |+ n 2
+
+d1 $ degradeBy 0.7 $ jux rev $ chunk 4 (hurry 2) $ n "{0*2 1 2 3*2}%4"
+  # sound "claus" # djf 0.9 # room 0.3 # sz 0.8
+  # gain 1
+  # delay 1 # delayt (1/3) # delayfb 0.2 # lock 1
+  # speed ("^hairS" |+ 0.9) # crush 2
+
+
+
+
+d2 silence
+
+hush
+d2 silence
+
+hush
+
+
+d2 $ slow 4 $ n "0 .. 7" # sound "looper"
+
+d4 $ chunk 4 (hurry 2) $ jux rev $ slow 4 $ n "0 .. 7" # sound "loop"
+  # speed 2
+
+d3 silence
+hush
+
+d1 $ n "0 3 4======" # sound "loop" # speed "1.5" # gain 1.3
+
+d11 $ rev $ iter 4 $ chop 16 $ slow "2 1.5" $ n "0 .. 7" # sound "loop" # gain "1.5" 
+
+
+
+d1 silence
+
+d2 $ jux rev $ chop 8 $ slow "2 1.5" $ n "0 .. 7" # sound "loop" # gain "0.8" # speed "1.5 [1.25,1,1.5] 1.75" # vowel "e" # squiz 1.9
+
+hush
+
+d3 $ jux rev $ off 0.25 (|* speed 1.5) $ n "0(3,8,<2 4>)" # sound "loop"
+  |+ speed "1.3" # vowel "<a e>" # accelerate "-0.04" # legato 0.25
+
+
+d11 $ degradeBy 0.9 $ sound "clap:5"
+
+d1 $ mask "t f" $ off 0.25 (|+ speed 0.5) $ n "{0*2 ~ [3] [7 4] 8*2}%4"
+  # sound "devabreath" # legato 0.5
+  # room 0.3 # sz 0.7 # djf 0.8
+  # squiz ("^hairS" |* 2)
+  # speed ("^hairS" |* 2 |+ 0.5)
+
+d1 $ sound "bd*3 bd:4*2" # delay 0.9 # delayt (1/6) # delayfb 0.5 # lock 1
+  # djf 0.3
+hush
+0ou7oyyyyyyyy6hhhhhhhhhhhhhhhhhhhu9o0o9olyiho9uut9oooooooooooooop[]
+
+
+
+
+
+]pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooop[]]]]]]]]]]]]]]]]]]]]]]]]]][[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]00p6toooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+hush
+
+all id
+
+
+nudgeAll 0.14
+
+d1 $ jux press $ chunk 4 (hurry 2) $ slow 4
+  $ s "kick:4 rim:1 [~ kick:4] rim:3*2 bd*4 rim:5*3 ~ rim:8*4"
+  # gain 0.75
+  # delay 0.9 # delayt ("^hairS") # delayfb 0.5 # lock 1
+
+d11 silence
+
+d2 $ degradeBy 0.9 $ jux (press) $ iter 4 $ rev $ chop 8 $ off 0.25 (|+ n "<12 7>") $ n "35 [~ 42] 35 [42 49]" # sound "rash" # legato 0.2
+  # gain 1
+  # lpf (slow 2 $ range 100 8000 "^facea") # lpq 0.2
+  |+ note "<0 2 7 12>"
+  |+ note "-12" # room 0.3 # sz 0.9
+
+
+d12 $ stack [
+  -- iter 4 $ n "0 1 2 [3 4] ~ 5 6 7" # sound "cpu",
+  sound "<rash:20(3,8) [~ [rash:32 rash:37]]> rash:62"
+]
+
+d12 $ stack [
+  while ((<0.5) <$> "^bang0") (const silence) $ struct "t(5,8)" $ sound "rash:30"
+  , while ((<0.5) <$> "^bang1") (const silence) $ struct "t(5,8,2)" $ sound "rash:32"
+  , while ((<0.5) <$> "^bang2") (const silence) $ struct "t(5,8,3)" $ sound "rash:34"
+  , while ((<0.5) <$> "^bang3") (const silence) $ struct "t(5,8,4)" $ sound "rash:36"
+  , while ((<0.5) <$> "^bang4") (const silence) $ sound "rash:38(3,8,2)"
+  , while ((<0.5) <$> "^bang5") (const silence) $ sound "rash:40(3,8,3)"
+  , while ((<0.5) <$> "^bang6") (const silence) $ sound "rash:42(3,8,4)"
+  , while ((<0.5) <$> "^bang7") (const silence) $ chop 4 $ sound "gtr(3,8,2)"
+  , while ((<0.5) <$> "^bang8") (const silence) $ iter 4 $ sound "rash:44(3,8,2)"
+  , while ((<0.5) <$> "^bang9") (const silence) $ iter 4 $ n "0 [1 3] 0 [2 4*2]" # sound "cpu2"
+  , while ((<0.5) <$> "^bang10") (const silence) $ sound "rash:48"
+  , while ((<0.5) <$> "^bang11") (const silence) $ sound "rash:50"
+] -- # s "juan" # legato 1
+ # speed ("^alexfader" |+ 0.5)
+ # room 0.3 # sz 0.8 # djf 0.8
+
+
+d1  $ off 0.25 (|+ note 5) $ jux rev $ iter 4 $ slow 2 $ n "2 [~ 3] 5 3" # sound "deva3"
+ # gain 1.4 # legato 1 # djf 0.8
+
+d1 $ sometimesBy 0.2 (s "kimkim") $ chunk 4 (hurry 0.5) $ jux (rev . (# s "juan")) $ slow "1.5" $
+  chop 1 $ n "<0 4> ~ {3 4 6}%4 5" # sound "deva3"
+  # legato 1
+  |+ n "<100>" -- # vowel "<a e i o u>"
+  # gain 1.5 -- # room 0.4 # sz 0.9
+  # djfbus 1 "^alexfader"
+
+
+
+
+hush
+
+hush
+
+
+
+d2 $ slow "2 3" $ every 3 (# (s "liquiddrum" # legato 1)) $ chunk 3 (hurry 2) $ jux press $ n "0 3*3 0 [~ 3 3]" # sound "kimkim" # djf 0.7 # crush "0 4"
+  # speed ("^alexfader" |+ 0.5) # room "^alexfader" # sz 0.97
+d2 silence
+hush
+
+d2 silence
+
+d3 $ chunk 4 (hurry 2) $ jux press $ iter 4 $ n "0 ~ 4 3 [~ [0 8]] [~ 5] 4 6"
+  # s "liquiddrum" # speed (stack ["^alexfader"] |+ "0.5")
+
+
+let hairS = getControl "hairS"
+    hairL = getControl "hairL"
+    facea = getControl "facea"
+    faceb = getControl "faceb"
+
+hush
+
+d1 $ jux rev $ loopAt 2 $ chop 32 $ sound "learn:2"
+  # lpfbus 1 (range 100 5000 facea)
+  # lpq 0.3
+
+hush
+
+all (# djfbus 1 hairL)
+
+d1 $ while ((> 0.5) <$> hairL) (rev . (# speed "-1")) $ chunk 4 (hurry 2) $ n "0 .. 7" # sound "cpu"
+
+hush
