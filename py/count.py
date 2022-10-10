@@ -10,9 +10,17 @@ subnames = ["deva", "juan", "lizzie", "alex"]
 context = zmq.Context()
 subscriberSocket = context.socket(zmq.SUB)
 
+# for glove simulation
+try:
+    osc_server = liblo.ServerThread(6060)
+    print("hmm")
+except liblo.ServerError as err:
+    print(err)
+    sys.exit()
+
 people = {}
-threshold = 0.1
-digits = 10
+threshold = 0.5
+digits = 5
 
 # 192.168.0.10 is the raspberry pi
 subscriberSocket.connect('tcp://192.168.0.10:5555')
@@ -34,26 +42,43 @@ superbus  = liblo.Address("localhost", 57110)
 
 def incoming(name, a, b, c, d):
     person = people[name]
-    value = a
-    if person['open']:
-        if value < threshold:
-            person['open'] = False
-            liblo.send(superbus, "/c_set", person['id'], 0)            
-        else:
-            liblo.send(superbus, "/c_set", person['id'], value)
-    
-    if person['closed']:
+    # use the fourth number for now!
+    value = d
+    print(d)
+    if not person['open']:
         if value > threshold:
             person['open'] = True
+            print("trigger")
             # trigger sound
             message = [
                 's', 'aacpcount',
                 'n', person['count'] % digits,
-                'speed', '1',
+                'speed', 1,
                 'amp', ("c%d" % person['id'])
             ]
             person['count'] += 1
             liblo.send(superdirt, "/dirt/play", *message)
+
+    if person['open']:
+        if value < threshold:
+            person['open'] = False
+            # liblo.send(superbus, "/c_set", person['id'], 0)            
+#        else:
+#
+    liblo.send(superbus, "/c_set", person['id'], value)
+
+def glove_callback(path, args):
+    print("hmm!")
+    print("incoming %f %f %f %f" % tuple(args))
+    incoming("alex", *args)
+    return False
+
+def default_callback(path, args):
+    print("unknown path: %s" % path)
+          
+osc_server.add_method("/ctrl", "ffff", glove_callback)
+osc_server.add_method(None, None, default_callback)
+osc_server.start()
 
 while True:
     if subscriberSocket.poll(timeout=1000):
