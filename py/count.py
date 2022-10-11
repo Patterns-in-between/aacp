@@ -20,11 +20,14 @@ except liblo.ServerError as err:
 
 people = {}
 threshold = 0.5
-digits = 10
+digits = 4
 
 # 192.168.0.10 is the raspberry pi
 subscriberSocket.connect('tcp://192.168.0.10:5555')
 # subscriberSocket.connect('tcp://127.0.0.1:5555')
+
+# sounds = ['saxgen', 'saxgen', 'juansingedit', 'devasingedit']
+sounds = ['fluid', 'saxgen', 'saxgen', 'saxgen']
 
 person_id = 1
 for subname in subnames:
@@ -47,16 +50,17 @@ def incoming(name, a, b, c, d):
     sensor1_value = float(b)
     sensor2_on = int(c) == 1
     sensor2_value = float(d)
-    print("a %s b %s c %s d %s\n" % (a,b,c,d))
+    # print("a %s b %s c %s d %s\n" % (a,b,c,d))
     if not person['open']:
         if sensor1_on:
             person['open'] = True
             print("trigger")
             # trigger sound
             message = [
-                's', 'saxgen',
+                's', sounds[person['id'] -1],
                 'n', person['count'] % digits,
                 'speed', 1,
+                'pan', ((person['id'] - 1) / 4) + 0.5,
                 'amp', ("c%d" % person['id']),
                 'cut', person['id']
             ]
