@@ -20,7 +20,7 @@ except liblo.ServerError as err:
 
 people = {}
 threshold = 0.5
-digits = 5
+digits = 10
 
 # 192.168.0.10 is the raspberry pi
 subscriberSocket.connect('tcp://192.168.0.10:5555')
@@ -43,29 +43,32 @@ superbus  = liblo.Address("localhost", 57110)
 def incoming(name, a, b, c, d):
     person = people[name]
     # use the fourth number for now!
-    value = d
-    print(d)
+    sensor1_on = int(a) == 1
+    sensor1_value = float(b)
+    sensor2_on = int(c) == 1
+    sensor2_value = float(d)
+    print("a %s b %s c %s d %s\n" % (a,b,c,d))
     if not person['open']:
-        if value > threshold:
+        if sensor1_on:
             person['open'] = True
             print("trigger")
             # trigger sound
             message = [
-                's', 'aacpcount',
+                's', 'saxgen',
                 'n', person['count'] % digits,
                 'speed', 1,
-                'amp', ("c%d" % person['id'])
+                'amp', ("c%d" % person['id']),
+                'cut', person['id']
             ]
             person['count'] += 1
             liblo.send(superdirt, "/dirt/play", *message)
 
     if person['open']:
-        if value < threshold:
+        if not sensor1_on:
             person['open'] = False
-            # liblo.send(superbus, "/c_set", person['id'], 0)            
-#        else:
-#
-    liblo.send(superbus, "/c_set", person['id'], value)
+            liblo.send(superbus, "/c_set", person['id'], 0)            
+        else:
+            liblo.send(superbus, "/c_set", person['id'], sensor1_value)
 
 def glove_callback(path, args):
     print("hmm!")
@@ -86,7 +89,7 @@ while True:
         msg = str(message[0]) #.decode("utf-8")
         msg = re.sub(r"^b'","",msg)
         msg = re.sub(r";.*$","",msg)
-        
+        print(msg)
         m = re.search("(deva|juan|lizzie|alex) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
             name = m.group(1)
