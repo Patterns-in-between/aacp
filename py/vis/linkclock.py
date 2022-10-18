@@ -63,8 +63,8 @@ class LinkClock:
         s = self._link.captureSessionState()
         now = self._link.clock().micros()
         t = s.beatAtTime(now, self.bpc) / self.bpc
-        print(t)
-        print(s.tempo())
+        #print(t)
+        #print(s.tempo())
         return t
         
     def stop(self):

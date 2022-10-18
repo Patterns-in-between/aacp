@@ -3,7 +3,7 @@
 # (c) Alex Mclean, Lizzie Wilson and contributors
 # Distributed under the terms of the GNU Public License version 3
 
-import zmq, liblo, re, datetime, os, time
+import zmq, liblo, re, datetime, os, time, math
 
 subnames = ["deva", "juan", "lizzie", "alex"]
 
@@ -20,14 +20,25 @@ except liblo.ServerError as err:
 
 people = {}
 threshold = 0.5
-digits = 4
+digits = 5
+
+#def f(n):
+#    return(n % (min((math.floor(n / 4) + 1), digits)))
+
+def f(n):
+    # return(n % 5)
+    return(n % (7 - min((math.floor(n / 4) + 1), 5)))
 
 # 192.168.0.10 is the raspberry pi
 subscriberSocket.connect('tcp://192.168.0.10:5555')
 # subscriberSocket.connect('tcp://127.0.0.1:5555')
 
 # sounds = ['saxgen', 'saxgen', 'juansingedit', 'devasingedit']
-sounds = ['fluid', 'saxgen', 'saxgen', 'saxgen']
+sounds = ['nona',
+          'nonb',
+          'nonc',
+          'nond'
+          ]
 
 person_id = 1
 for subname in subnames:
@@ -58,7 +69,7 @@ def incoming(name, a, b, c, d):
             # trigger sound
             message = [
                 's', sounds[person['id'] -1],
-                'n', person['count'] % digits,
+                'n', f(person['count']),
                 'speed', 1,
                 'pan', ((person['id'] - 1) / 4) + 0.5,
                 'amp', ("c%d" % person['id']),
@@ -93,7 +104,7 @@ while True:
         msg = str(message[0]) #.decode("utf-8")
         msg = re.sub(r"^b'","",msg)
         msg = re.sub(r";.*$","",msg)
-        print(msg)
+        #print(msg)
         m = re.search("(deva|juan|lizzie|alex) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
             name = m.group(1)

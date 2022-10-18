@@ -9,16 +9,16 @@ import zmq, liblo, re, datetime, os, time
 
 import linkclock
 
-subnames = [b"textile1", b"textile2", b"textile3", b"deva",b"face", b"hand", b"carpet_list", b"hair_L", b"hair_S", b"knee_J", b"knee_D", b"rand"]
+subnames = [b"textile1", b"textile2", b"textile3"]
 
 context = zmq.Context()
 subscriberSocket = context.socket(zmq.SUB)
 
 # 192.168.0.10 is the raspberry pi
-# subscriberSocket.connect('tcp://192.168.0.10:5555')
-subscriberSocket.connect('tcp://127.0.0.1:5555')
+subscriberSocket.connect('tcp://192.168.0.10:5555')
+# subscriberSocket.connect('tcp://127.0.0.1:5555')
 
-osc_target = liblo.Address("localhost", 6060)
+osc_target = liblo.Address("localhost", 6010)
 
 half_pi = math.pi/2
 
@@ -30,7 +30,7 @@ cps = 0.5625
 #cycletime = time.time()
 values = {}
 
-link_clock = linkclock.LinkClock(120, 4, 0)
+link_clock = linkclock.LinkClock(120, 8, 0)
 link_clock.start()
 
 def cycle_now():
@@ -85,7 +85,7 @@ midy = height/2
 white = 255, 255, 255
 black = 0, 0, 0
 
-cycles = 3
+cycles = 2
 history = {}
 
 screen = pygame.display.set_mode(size)
@@ -101,8 +101,9 @@ while 1:
     now = cycle_now()
 
     #key = 'handosc'
-    key = 'rand'
+    #key = 'rand'
     #key = 'face'
+    key = 'textile2'
     
     if key in history:
         # clear out old history
@@ -145,7 +146,7 @@ while 1:
             else:
                 averages.append(0)
         mini = " ".join(map(str, averages))
-        liblo.send(osc_target, "/ctrl", "facep", mini)
+        liblo.send(osc_target, "/ctrl", "textile2p", mini)
         #print(mini)
         #print(averages)
         #print("seg %d len %d" % (segments, len(averages)))
@@ -180,22 +181,24 @@ while 1:
     while subscriberSocket.poll(timeout=1):
         message = subscriberSocket.recv_multipart()
         msg = str(message[0]) #.decode("utf-8")
-        # print(message)
+        #print(message)
         msg = re.sub(r"^b'","",msg)
         msg = re.sub(r";.*$","",msg)
         msg = re.sub(r"'$","",msg)
 
         now = cycle_now()
         
-        m = re.search("face ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        m = re.search("textile2 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
-            name = "face"
+            name = "textile2"
             a = float(m.group(1))
             b = float(m.group(2))
-            print("ah: " + str(a))
+            c = float(m.group(3))
+            d = float(m.group(4))
+            #print("ah: " + str(a))
             if not name in history:
                 history[name] = []
-            history[name].append((now, a))
+            history[name].append((now, b))
         if msg == 'rand':
             if not 'rand' in history:
                 history['rand'] = []
