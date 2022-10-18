@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# amount
+# position
+# acceleration
+# threshold
+
 import zmq, liblo, sys, re, datetime, os, time
 from pathlib import Path
 
@@ -61,44 +66,52 @@ while True:
             liblo.send(target, "/ctrl", "carpet", float(number))
             continue
 
-        m = re.search("textile1 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        m = re.search("textile1 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
             a = m.group(1)
             b = m.group(2)
             c = m.group(3)
             d = m.group(4)
+            e = m.group(5)
             
             liblo.send(target, "/ctrl", "textile1a", float(a))
             liblo.send(target, "/ctrl", "textile1b", float(b))
             liblo.send(target, "/ctrl", "textile1c", float(c))
             liblo.send(target, "/ctrl", "textile1d", float(d))
+            liblo.send(target, "/ctrl", "textile1e", float(e))
             # print("Sending textile1 %f %f %f %f" % (float(a), float(b), float(c), float(d)))
             continue
 
-        m = re.search("textile2 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        m = re.search("textile2 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
             a = m.group(1)
             b = m.group(2)
             c = m.group(3)
             d = m.group(4)
+            e = m.group(5)
             
             liblo.send(target, "/ctrl", "textile2a", float(a))
             liblo.send(target, "/ctrl", "textile2b", float(b))
             liblo.send(target, "/ctrl", "textile2c", float(c))
             liblo.send(target, "/ctrl", "textile2d", float(d))
+            liblo.send(target, "/ctrl", "textile2e", float(e))
             # print("Sending textile2 %f %f %f %f" % (float(a), float(b), float(c), float(d)))
             continue
 
 
-        m = re.search("textile3 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        m = re.search("textile3 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
             a = m.group(1)
             b = m.group(2)
             c = m.group(3)
+            d = m.group(4)
+            e = m.group(5)
             
             liblo.send(target, "/ctrl", "textile3a", float(a))
             liblo.send(target, "/ctrl", "textile3b", float(b))
             liblo.send(target, "/ctrl", "textile3c", float(c))
+            liblo.send(target, "/ctrl", "textile3d", float(d))
+            liblo.send(target, "/ctrl", "textile3e", float(e))
             # print("Sending textile3 %f %f %f" % (float(a), float(b), float(c)))
             continue
 
