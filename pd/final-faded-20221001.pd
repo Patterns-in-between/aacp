@@ -1,4 +1,4 @@
-#N canvas 994 249 768 396 12;
+#N canvas 1391 45 768 396 12;
 #X obj 295 251 dac~;
 #X obj 334 205 *~ 0.6;
 #X obj 46 48 hsl 128 15 0 127 0 0 empty empty empty -2 -8 0 10 #fcfcfc
@@ -6,22 +6,24 @@
 #X obj 50 109 / 6.35;
 #X floatatom 56 187 5 0 0 0 - - - 0;
 #X obj 54 139 - 10;
-#X obj 275 51 nn~ /home/alex/models/final-faded-20221001.ts prior,
-f 65;
-#X obj 281 140 nn~ /home/alex/models/final-faded-20221001.ts decode
-, f 65;
+#X obj 150 113 adc~, f 11;
+#X obj 275 51 nn~ /home/alex/models/final-cathedral.ts encode, f 65
+;
+#X obj 281 140 nn~ /home/alex/models/final-cathedral.ts decode, f
+65;
 #X connect 1 0 0 0;
 #X connect 1 0 0 1;
 #X connect 2 0 3 0;
 #X connect 3 0 5 0;
-#X connect 4 0 6 0;
 #X connect 5 0 4 0;
 #X connect 6 0 7 0;
-#X connect 6 1 7 1;
-#X connect 6 2 7 2;
-#X connect 6 3 7 3;
-#X connect 6 4 7 4;
-#X connect 6 5 7 5;
-#X connect 6 6 7 6;
-#X connect 6 7 7 7;
-#X connect 7 0 1 0;
+#X connect 6 1 7 0;
+#X connect 7 0 8 0;
+#X connect 7 1 8 1;
+#X connect 7 2 8 2;
+#X connect 7 3 8 3;
+#X connect 7 4 8 4;
+#X connect 7 5 8 5;
+#X connect 7 6 8 6;
+#X connect 7 7 8 7;
+#X connect 8 0 1 0;
