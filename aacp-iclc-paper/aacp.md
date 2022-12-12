@@ -25,11 +25,11 @@ monofont: Inconsolata
 bibliography: references.bib
 ...
 
-# Introduction
+## Introduction
 
 This paper introduces our collective work "Patterns in between intelligences", a performance piece that builds an improvisational practice between live coding sounds and coding through dance, mediated and shaped through e-textile sensors (do we write about sheffield performance? or the otehr prototypes as well? the sheffield one is not using costumes at all - alex: I guess we can draw on everything we've done so far?), feeding into a networked system of which both live coded processes and human bodies are part.
 
-The project was innitiated as a responce to the funding call by LINK masters to produce an artistic work using Artificial Intelligence. Our multi descipline team: Choreographers and performers, live coders and e-Textile makers gathered together for the attempt to think together how AI could play a role in artistic work, both conceptually and as creative tools.
+The project was innitiated as a response to the funding call by LINK masters to produce an artistic work using Artificial Intelligence. Our multi descipline team: Choreographers and performers, live coders and e-Textile makers gathered together for the attempt to think together how AI could play a role in artistic work, both conceptually and as creative tools.
 
 Through this project we look to challenge mainstream ideas of AI that attempt to emulate human neural pathways as the method of creating new intelligences. Instead, we take a collective view of intelligence. Through a ritualist frame, the spiritual and social dimension of AI is questioned, and machine learning reconnected with ancient patterning techniques. (I am not sure how much we should center the narrative about AI, or creating AI, as our prototypes are not really focusing on that yet -- I think we can describe the aim of our project as this, a non-traditionalist approach to using AI in performance)
 
@@ -50,16 +50,20 @@ In this performance,
 
 As collaborating performance, textile and live coding artists, working together required us to establish meaningful dataflows and protocols for collaboration. A core problem was how to connect moving bodies with comparatively static actions of live coders, typing at their laptops. With battery-powered, textile-embedded sensors capturing movements, and wireless networking acting as conduit, several problems around how to interpret and respond to the data flows remained.
 
-We focussed on our technological constraints as creative material, and one such constraint was *latency*. Due to our use of machine learning in reducing the sensed dimensions, and other processing delays in our system, there could be a delay approaching half a second before a live coder's work could could connect a sensed movement into a sound triggered by it. We worked with this delay in several different creative ways. [todo: ref https://ccrma.stanford.edu/~cc/shtml/ensDelay.shtml ]
+We focussed on our technological constraints as creative material, and one such constraint was *latency*. Due to our use of machine learning in reducing the sensed dimensions, and the latency built-in to live coding systems like TidalCycles, there could be a delay approaching half a second before a live coder's work could could connect a sensed movement into a sound triggered by it. Human perception is tuned to the speed of sound [@chafeEffectTemporalSeparation2010], so that any delay between seeing an action and hearing the result is perceived as distance. This half-second delay therefore translates to 171.5 metres.
+
+We worked with this delay creatively, in two different ways. Firstly, we worked to reduce the latency for the interactions that did not involve live coding. Sounds triggered from sensors placed on the face of the four performers were directly translated into sound according to simple patterns [go into more detail? maybe later?].
+
+However for live coding interactions, rather than reducing the delay, perhaps counterintuitively, we decided to increase and compound the delay. This relied on ideas of patterned repetition and resonance that were already a recurring theme in our discussions. For example, where the piece worked within a metric cycle of 1.4 seconds, and we found a latency of 0.4 seconds, to keep everything in time, we simply had to delay the signal for an additional 1 second. On top of this we added additional data 'echoes' of additional cycles, by applying a cycle-length delay line to the data signal, with feedback. As a result, repetitive movements fit perfectly to the metric cycle, and built up and dissipated over time with the introduction and breaking of the repetition.
+
+
 
 ++ is "latency" or "delay" coming from ML? I thought it was mainly from Tidal cycle not using the incoming data as it comes in. >> but use of Tidal is our unique property, so we had to find a way to work with it.
-
-One approach was not to try to reduce the delay, but counterintuitively, to increase and compound the delay. This relied on ideas of patterned repetition and resonance that were already a recurring theme in our discussions. For example, where the piece worked within a metric cycle of 1.4 seconds, and we found a latency of 0.4 seconds, to keep everything in time, we simply had to delay the signal for an additional 1 second. We added additional data 'echoes' of additional cycles, by applying a cycle-length delay line to the data signal, with feedback. As a result, repetitive movements, fit to the metric cycle built up and dissipated over time with the introduction and breaking of the repetition.
-
 ++ ah, I actually did not know how it was working inside. nice to know!
 
 ## E-textile Sensors: Design decisions
-E-Textiles could be used to create soft and flexible sensors that can be worn on body to sense movements. In this performance, we explored textile pressure sensors made of eeontex resistive material to sense bend and stretch of skin or garment as a result of body movements, and capacitive sensor to detect touch or fold of fabric sourface. 
+
+E-Textiles can be used to create soft and flexible sensors that can be worn on body to sense movements. In this performance, we explored textile pressure sensors made of eeontex resistive material to sense bend and stretch of skin or garment as a result of body movements, and capacitive sensor to detect touch or fold of fabric sourface. 
 In early prototypes, we forcusted more on pressure sensors palced proximate to body to detect bend/stretch movements of the performers. We used Bela mini board which allows maximam 8 analog sensors per unit. We used them as : 1) direct trigger of a sound, 2) data for Machine Learning to reduce dimentions and use for certain synthesis parameters. 
 In the later prototypes, we moved to conductive thead mbroidered capacitive touch sensors on large textile surace (140cm x 280cm, 140cm x 140cm). We used them as 1) direct trigger of a sound, 2) to create data pattern that influence live coding pattern (** Alex, you need to clarify this). When used in this way, it is not about capturing exact motion, but to capture relative positions of the textile surface with the body and motion. 
 The proximate pressure sensors are good in capturing prisice movements and produces repeatable data, although for the performers the bend sensors creates the notion of "activation points" and tend to become unwanted framework when choreographing new movements. 
@@ -134,17 +138,18 @@ we try to discuss how we cope with these issues in our prototype performance pro
 
 ## Live coding and Realtime data: Who is coding live?
 
-
-
 ## Toward a  collective view of intelligence
 - comparison to swarm intelligence, like flocking algorithms. >> Neural network is also a type of swarm intelligence (**can we say this?), each participatns of the performance, the performers, live coders, sensor makers collectively create data patterns that emerge. it is up to us to define if this unique pattern is an intelligence or a mear random dots.
 - we see the current AI technology and narrative around AI being top-down and technocentric approeach. we use the esotericism/ occultism as our narrative vihecle to critically jaxtapose the two AI approeaches.
 - the question still remains: how do one work with technology like AI in artistic context, so that it is understandable and meaningful to their audience? How can one even propose alternative idea or criticism in technology topic? (here, i need some reference or research I feel)
 
-## Acknowledgments
-
-At the end of the Conclusions, acknowledgements to people, projects, funding
-agencies, etc. can be included after the second-level heading “Acknowledgments”.
 
 
-# References
+References  (TODO: Turning into BibTex  bibliography? )
+ 
+Jain, S., 2000. Ritual communication: From everyday conversation to mediated ceremony.
+
+Rappaport, R.A., 1971. Ritual, sanctity, and cybernetics 1. American Anthropologist, 73(1), pp.59-76.
+
+Han, B.C., 2020. The disappearance of rituals: A topology of the present. John Wiley & Sons.
+
