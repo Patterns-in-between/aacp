@@ -1,16 +1,16 @@
-all: iclc2023.pdf iclc2023.html
+all: aacp.pdf aacp.html
 
 clean:
-	rm iclc2023.pdf iclc2023.html
+	rm aacp.pdf aacp.html
 
-iclc2023.html: iclc2023.md references.bib
-	pandoc --template=pandoc/iclc.html --citeproc --number-sections iclc2023.md -o iclc2023.html
+aacp.html: aacp.md references.bib
+	pandoc --template=pandoc/iclc.html --citeproc --number-sections aacp.md -o aacp.html
 
-iclc2023.pdf: iclc2023.md references.bib pandoc/iclc.latex pandoc/iclc.sty
-	pandoc --template=pandoc/iclc.latex --citeproc --number-sections iclc2023.md -o iclc2023.pdf
+aacp.pdf: aacp.md references.bib pandoc/iclc.latex pandoc/iclc.sty
+	pandoc --template=pandoc/iclc.latex --citeproc --number-sections aacp.md -o aacp.pdf
 
-iclc2023.docx: iclc2023.md references.bib
-	pandoc --citeproc --number-sections iclc2023.md -o iclc2023.docx
+aacp.docx: aacp.md references.bib
+	pandoc --citeproc --number-sections aacp.md -o aacp.docx
 
-iclc2023x.pdf: iclc2023.md references.bib pandoc/iclc.latex pandoc/iclc.sty
-	pandoc --template=pandoc/iclc.latex --citeproc --number-sections iclc2023.md --latex-engine=xelatex -o iclc2023x.pdf
+aacpx.pdf: aacp.md references.bib pandoc/iclc.latex pandoc/iclc.sty
+	pandoc --template=pandoc/iclc.latex --citeproc --number-sections aacp.md --latex-engine=xelatex -o aacpx.pdf

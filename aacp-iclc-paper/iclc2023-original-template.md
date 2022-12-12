@@ -1,7 +1,7 @@
 ---
 # This template is licensed under a Creative Commons 0 1.0 Universal License (CC0 1.0). Public Domain Dedication.
 
-title: 'Your paper title goes here'
+title: Title goes here
 author:
   - name: Author one
     affiliation: University of Live Coding
