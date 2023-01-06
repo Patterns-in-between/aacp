@@ -490,10 +490,20 @@ hush
 
 d2 $ slow 4 $ n "0 .. 7" # sound "looper"
 
-d4 $ chunk 4 (hurry 2) $ jux rev $ slow 4 $ n "0 .. 7" # sound "loop"
-  # speed 2
+
+d4 $ (rev $ chop 64 $ jux rev $ slow 4 $ rev $ n "0 .. 7" # sound "loop" # gain 0.9) # panbus 4 (segment 64 $ range (-1) 1 saw)
+  # speed "[1, 1.5]" # gain 1.3
+
+hush
+
+d1 $ sound "bd" # pan 0.5
+
+d1 $ slow 4 $ sound "bd*4" # pan (0.125 <~ saw)
+
+
 
 d3 silence
+
 hush
 
 d1 $ n "0 3 4======" # sound "loop" # speed "1.5" # gain 1.3
@@ -623,3 +633,214 @@ all (# djfbus 1 hairL)
 d1 $ while ((> 0.5) <$> hairL) (rev . (# speed "-1")) $ chunk 4 (hurry 2) $ n "0 .. 7" # sound "cpu"
 
 hush
+
+
+## sheffield
+d12  silence
+
+
+
+d11 $ -- degradeBy 0.7 $ -- superimpose (# (orbit 11 # gain 1.5)) $
+  jux' [id, rev, iter 4, press] $
+  slow "1 <3 5 7>"
+--  slow 2
+  $ djf (range 0.3 0.7 $ stack [cP "textile2p"])
+  # panbus 4 (segment 64 $ range (-1) 1 $ slow 2 perlin)
+  # s "[kick:4 snare]" 
+  # speed (stack [cP "textile2p" |+ "<1, 0.75>", 1])
+  # gain 0.76 # legato 0.2
+  |* speed "[0.8]"
+  # delay 0.4 # delayt "[t,3]" # delayfb 0.6
+  # room 0.3 # sz 0.6
+
+
+d12 silence
+d1 silence
+
+
+d1 $ 
+-- degradeBy 0.8 $
+  -- off 0.25 (# crush 8) $
+  slow "2 <3 5 7>"
+  -- slow 2
+  $ chop 8
+  $ djf (range 0.2 0.7 $ stack [cP "textile2p"])
+  # panbus 4 (segment 64 $ range (-1) 1 $ slow 3 saw)
+  # s "[bothbreath,gel]" 
+  -- # speed (stack [cP "textile2p" |+ "<1, 1.01>", 0.5])
+  # gain 1.2 # legato 0.25
+  |* speed "[1,1.5]"
+  # n "<5 7 2 5 6 9>"
+  # delay 0.4 # delayt "[t,3]" # delayfb 0.6
+  # room 0.3 # sz 0.9
+
+
+only $
+d3 $ -- off 0.25 (# s "kick") $ degradeBy 0.9 $
+  off "< 0.25>" (|+ note 7) $
+  chunk 4 (hurry 2)
+  (chop "<4 3 2 8>" $ struct "~ [t]" $ sound "stabs")
+  # pan rand
+  # speed "[1,<1.03 1.04,1.5>]" # room 0.4 # sz 0.8
+
+only $ 
+d3 $ degradeBy 0.9 $ jux' [id, rev, iter 4, chunk 4 (hurry 2) . (# squiz 1.5)]
+   $ iter 4 $ n "0 2 ~ [3 4] ~ 2 ~ 3*2"
+   # sound "cpu2"
+   |+ pan (slow 4 perlin) # end 0.2 # djf 0.96
+
+d4 $ jux rev $ iter 4 $ n "c7 ~ e7" # sound "rash" # gain 1.1 # pan rand
+
+nudgeAll 0.04
+
+d5 $ jux' [id, rev, iter 4] (|+ n 4) $ sound "kick:5(3,8)"
+
+
+d4 $ degrade $ jux' [id, rev, press] $ struct "t(3,8,<0 2 4>)" $ sound "rave:7" # legato 1
+  # djf 0.9 # room 0.3
+
+d1 $ n "0 ~ [3 5] 4" # sound "bothbreath"
+  # pan rand
+
+
+d2 $ pan "0 0.75" # n "0" # sound "<cpu2>"
+  # squiz (range 1 1.5 perlin) 
+  |+ pan (slow 4 saw)
+  # nudge 0.02
+
+d3 $ mask "t [~ t] [f t]" $ off "<0.125 0.25>" (# speed 1.5) $ jux' [id, rev, iter 4, fast 2] $ chunk 4 (press) $ off 0.25  (# "cpu2") $ s "kick:5 ~ kick:5 kick:6" # pan "[0,0.25, 0.5,0.75]" # gain 0.7 # crush 6 |+ pan saw # end 0.04
+
+
+
+
+
+
+
+
+hush
+
+
+
+d10 $ slow 4 $ n "0 .. 7" # sound "looper"
+
+d9 $ jux' [id, rev, iter 4, press] $ (rev $ chop "<32 64 128>" (slow 4 $ n "0 1 2 3 4 5 6 7" # sound "loop"))
+  # gain 1 |+ pan (slow 4 perlin) # speed "<1.1,1.5>"
+ # djf 0.9
+  
+
+hush
+
+
+d9 $ (slow 4 $ rev $ n "0 1 2 3 4 5 6 7" # sound "loop")
+  # gain 0.8 # pan (slow 4 perlin) # speed "<-1.5 -0.75>"
+
+hush
+d9 silence
+
+d4 $ degradeBy 0.7 $ (chop "<4 2 8>" $ slow 2 $ iter 4 $ n "0 .. 7" # sound "loop"
+   # gain 0.8 # speed "[1,1.5]" # djf 0.8 # room 0.4 # sz 0.8)
+   # panbus 4 (fast 8 $ range (-1) 1 saw)
+
+
+d4 silence
+
+hush
+
+d1 $ degradeBy 0.9 $ off "<0.25 0.125 0.125>" (|+ pan 0.5) $ sound "da <din taka> da*3 taka"
+  # gain 0.9 # djf 0.65 # room 0.3 # sz 0.9 # legato 0.5
+  # speed "[1,1.5]" |+ pan (slow 4 perlin)
+
+
+d1 $ jux' [id, rev, (3 <~)]
+  $ sound "<da(3,8) din(3,8,2) taka(5,8,2) quatro*2 ma(3,8)>" # legato 1
+  # pan "<0 0.25 0.5 0.75>"
+  # n "<0 2 3 4 1>"
+  # speed "[1.02,1]"
+  # hpf "300" # hpq 0.3
+
+d1 $ iter 4 $ slow 2 $ sound "ta ma ~ taka" # djf 0.8 # gain 1.6 # legato 1
+ # pan 0.125
+
+d3 $ jux rev $ iter 4 $ n "0 ~ [3 4] 5" # sound "stabs" # legato 0.25
+hush
+
+d2 $ off "<0.25 0.125 0.125>" (# (crush 4 # speed 1.5)) $ sound "[phkick:5 cpu*3 phkick:4*2 cpu2*2, ~ snare:5]"
+  # djf 0.5
+  -- # delay 0.4 # delayt "t" # delayfb 0.5 # lock 1
+  # speed (stack [4,range 2 2.03 rand ])
+  # pan 0.125
+
+
+d3 $ mask "t [f t]" $ jux' [iter 4, press . (# speed 2)] $ off 0.25 (|+ n "<2 3>") $ sound "kick:4 snare:4 [~ kick:4] snare:5"
+  # crush 5 # gain 1.2
+  # nudge 0.2 # pan 0.125
+
+d1 $ (jux' [id, rev, iter 4, hurry 2] $ n "0 .. 7" # sound "drum")
+  |+ pan (slow 8 perlin)
+
+
+hush
+
+d1 $ off 0.25 (# squiz 1.2) $ jux' [id,rev,iter 4] $ n "0 .. 7" # sound "cpu2" # gain 0.9
+
+
+hush
+
+hush
+
+d1 $ degradeBy 0.8 $ jux' [id, rev, press, iter 4 . (# speed 2)] $
+  chop "<2 4>" 
+  $ chunk 4 (hurry 0.5) $ off 0.25 (# crush 8)$ n "0 ~ 3 0 ~ [2 0]3 4"  # sound "<cpu2 cpu>"
+  # pan rand
+  # gain 1.4 # djf 0.6
+--   # room 0.3 # sz 0.7
+
+
+d2 $ degradeBy 0.9 $ jux' [id, press, iter 4] $ off 0.25 (# speed 1.5)$ (chop "<4 3>" $ sound "~ off" # gain 1.6)
+  # pan (isaw)
+  |+ speed (slow 2 $ range 1.1 2.2 perlin) 
+  |+ speed "[0,0.04]" # djf 0.9
+
+d3 $ jux' [id, press]
+$ (slow 2 $ rev $ chop 16 $ struct "t(3,8,<0 2 4>)"
+  $ 
+   x (slow 4 $ (range "0.2" "0.9" $ rand))
+  # y (range "0.2" "0.2" $ saw)
+  # c "w" -- color
+  # cut 1 
+  # speed "[1,1.1]"
+  # gain 0.9
+  # djf 0.85 # room 0.8 # sz 0.99)
+  |+ panbus 5 (segment 128 $ fast 4 $ range (-1) 1 $ slow 1 saw)
+
+
+hush
+
+d1 $ sound "bd*8" # pan saw
+
+d1 $ sound "cp*4"
+  # speed 4 # gain 1
+
+d1 $ sound "cp" # gain 1.4
+
+nudgeAll 0.04
+
+hush
+b
+d1 $ degrade $ off 0.125 (|+ n 1) $ off 0.25 ((# djf 0.2) . (|+ pan 0.5)) $ (slow 8 $ iter 4 $ chop "64 32 16 8" $ sound "saxgen")
+   # n "<9>"
+   # panbus 4 (segment 64 $ range (-1) 1 $ slow 4 perlin)
+   # gain 1
+   # timescale 2
+   # timescalewin 0.1
+   # speed "[4]"
+   # djf 0.9 # room 0.4 # sz 0.98
+
+d1 $ sound "kick [snare clap:4]"
+
+hush
+
+d1 $ sound "bd*4" # pan (saw + 0.125)
+
+-- 
+nudgeAll 0.05
