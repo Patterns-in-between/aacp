@@ -74,3 +74,14 @@ Previous approach using FFT is here: https://github.com/Patterns-in-between/aacp
 
 Either adapt this or refactor/simplify/rewrite based on statsmodels example above.
 
+How to run with test data:
+
+in aacp/zmq:
+
+* python ./proxy.py
+* python ./playback.py adjusted-20210701-132910.txt
+
+In aacp/py/tempo/:
+
+* python ./tempo.py
+
