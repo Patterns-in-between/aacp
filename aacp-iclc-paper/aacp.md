@@ -10,7 +10,7 @@ author:
     affiliation: 
     email: deva.schubert@gmx.de
   - name: Mika Satomi
-    affiliation: 
+    affiliation: KOBAKANT
     email: mika@kobakant.at
   - name: Alex McLean
     affiliation: Then Try This
@@ -70,23 +70,21 @@ When the data mapping is indirect with the sound outcome, we observed that the o
 
 In our first prototype, we used eight e-Textile pressure sensors on performers’ bodies capturing every 40 milliseconds, streaming the data simultaneously. These raw data are difficult to use as control parameters, while one needs to monitor many sensors at once to make sense of the incoming information. Reducing the dimensions of data using machine learning became our practical solution. E-textile sensors often show hysteresis and wear-and-tear as it is in continuous use and require one to make fine tuning in process. Instead, assigning posture as pattern of data and training the machine learning system reduces the necessity of manual tuning. We observed this approach provides smoother and more intuitive interaction between the wearer and the interactive system
 
-![E-Textile pressure sensor embedded in undergarment](images/sensor_leg.jpg){ width=70% }
-
-![E-Textile pressure sensor on socks measuring the foot pressure against the floor. Both are from the early prototype costumes.](images/sensor_shoe2.jpg){ width=70% }
+![Left: E-Textile pressure sensor embedded in undergarment; Right: E-Textile pressure sensor on socks measuring the foot pressure against the floor. Both are from the early prototype costumes.](images/sensor_prototype.jpg){ width=100% }
 
 ## Materialising AI-Generated Images 
 
 We used Disco Diffusion [@DiscoDiffusion] AI image generator to produce a series of images with prompt texts composed of keywords taken from the conceptual investigations, in order to create pattern design for large scale digital print fabrics. Although a human designer created a description of the image, reference style of drawings and an initial image to influence compositions and the colour scheme, the main "drawing" of the pattern is made by AI. Generally, AI-generated images make mistakes in continuity of the space or geometry, which work against the overall composition. Sometimes it generates strange associations of image with prompt texts, that gives us a new, creative idea or sensation. It is like a deformed mirror that reflects our interpretations and associations of things. These AI image generation tools can produce many variations of images in a relatively short time and can inspire the creative process of a designer. But in the end, we found this is not a 'hands-off' process. A human designer needs to create their own interpretations and compositions for these images, through hand-editing and collage, in order to complete it as an artistic piece. In this sense one can say "artificial intelligence" is a powerful creative support tool for us humans to make use of, but it is not creative on its own.
 
-![Conductive thread embroidery as capacitive touch sensor on a fabric](images/carpet-left-small.jpg){ width=70% }
-
-![Large-scale digital printed fabric with AI generated images](images/carpet-right-small.jpg){ width=70% }
+![Left: Conductive thread embroidery as capacitive touch sensor on a fabric; Right: Large-scale digital printed fabric with AI generated images](images/AI_image_generation.jpg){ width=100% }
 
 # Artificial Voices and Warped Sounds 
 
 TidalCycles was the main software used for live coding sounds  [@mcleanMakingProgrammingLanguages2014], however a few custom elements were employed to alter the territories that live coders were used to, pushing them into new modes of interacting with sound through software. The two live coders were tasked with working independently when manipulating sensorial information from the materials but also collaboratively in response to each other, to create a unified sound world. 
 
 At the exposition of the piece, data from the sensors on the face of the four performers was sent using the zero-mq (zmq) protocol [@hintjens2013zeromq]. In this, the sensors’ were thresholded so that the movement of opening of the mouth would lead to different sounds being triggered. A custom python script would receive the trigger messages once above the threshold, and play back a sample. The face sensor was then continuously mapped to sample volume, so that the amplitude envelope of the sound could be shaped or shortened with the mouth.  Each performer was assigned a unique set of sounds that would be triggered from their sensor. The sounds that were triggered were made using an artificial voice, and the outcome of this was to create a set of words that were nonsensical, but through their repetition and cycling through the sound set would give the impression of a “counting” sequence. This sequence was reduced from six to two sounds during this part of the piece, creating tighter loops and a greater sense of patterned interplay between the performers. To create the sounds from an artificial voice, we used a Neural Audio Synthesis model called RAVE [@caillon2021rave].  In short, this uses a variational autoencoder (VAE) structure but is applied as a real-time model (able to generate 48kHz audio signals, while simultaneously running 20 times faster than real-time on a standard laptop CPU).  The RAVE-model is trained on a corpus of audio and the VAE structure decodes and then encodes the signals. The process of “timbre-transfer” [@caillon2021rave] allows interpolation of the latent space based on input source sounds. These input source sounds can be either audio files, or live input from a microphone.   
+
+![Live coder Lizzie Wilson (left) working with embroidered sensor data interactions with dancer/choreographer Deva Schubert (right)](images/deva.jpg){ width=80% }
 
 As well as being used to create a set of unique sounds to be triggered by the opening movement of the mouth from the face sensors, the RAVE model was also used for real-time vocal synthesis. Live vocal input from a wireless microphone worn by one of the performers was passed to this real-time model, which was implemented as an extension for the PureData software. The real-time audio was fed into the model in input and warped into an artificial voice by traversal through the latent space. This allowed the manipulation of the human performer’s voice and reconstructed it as an artificial and synthetic voice.  
 
@@ -118,7 +116,7 @@ do
 ~~~~
 Through these strategies we found that the live coders’ fingers were relieved from the burden of typing where the performers bodies became a new input source to update and shape the code in real-time. 
 
-Overall, the top down view of how the piece came together in performance and how the different sounds combined can be seen in the figure below. 
+Overall, the top down view of how the piece came together in performance and how the different sounds combined can be seen in fig. 4. 
 
 ![Flow of how all the pieces for the “Patterns in between Intelligences” performance materialised](images/flow-figure1.png){ width=80% }
 
