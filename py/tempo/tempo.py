@@ -13,6 +13,26 @@ import re
 import liblo
 import sys
 
+import link
+
+bpc = 4 # beats per cycle
+
+# Initialise link with default tempo of 120
+linkclock = link.Link(120)
+linkclock.enabled = True
+time.sleep(2)
+s = linkclock.captureSessionState()
+cps = (s.tempo() / bpc) / 60
+
+print("current cps: %f" % cps)
+
+def setTempo(bpm):
+    state = linkclock.captureSessionState()
+    state.setTempo(bpm, linkclock.clock().micros());
+    linkclock.commitSessionState(state);
+
+setTempo(140.0)
+
 subname = b"adjusted"
 addr = 'tcp://localhost:5555'
 
@@ -142,8 +162,13 @@ class Fetch(threading.Thread):
                             x = self._data.YData[i]
                             t = self._data.XData[i]
 
-                            #a = autocorr(x)
+                            # https://www.statsmodels.org/dev/generated/statsmodels.tsa.stattools.acf.html
+                            # "if alpha=.05, 95 % confidence intervals
+                            # are returned where the standard
+                            # deviation is computed according to
+                            # Bartlett”s formula."
                             auto = sm.tsa.acf(x, nlags=2000, alpha=.05)
+                            
                             self._data.mags[i] = auto[0]
                             self._data.conf[i] = auto[1][:, 1]
                             
