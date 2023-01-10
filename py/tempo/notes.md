@@ -74,7 +74,7 @@ Previous approach using FFT is here: https://github.com/Patterns-in-between/aacp
 
 Either adapt this or refactor/simplify/rewrite based on statsmodels example above.
 
-How to run with test data:
+# Running tempo.py with test data
 
 in aacp/zmq:
 
