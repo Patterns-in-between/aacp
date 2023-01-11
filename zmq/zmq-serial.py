@@ -3,6 +3,7 @@
 import zmq
 import serial
 import re
+import liblo
 
 ser = serial.Serial("/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_5573731323135141A191-if00", 115200, timeout=1) 
 
@@ -17,6 +18,21 @@ socket.setsockopt(zmq.SUBSCRIBE, b"green")
 socket.setsockopt(zmq.SUBSCRIBE, b"blue")
 socket.setsockopt(zmq.SUBSCRIBE, b"light")
 socket.setsockopt(zmq.SUBSCRIBE, b"carpet")
+
+osc_server = liblo.Server(1235)
+
+def rgb_callback(path, args):
+    print("hmm")
+    red = args[0]
+    green = args[1]
+    blue = args[2]
+    msg = ("%dr%dg%db" % (red, green, blue))
+    print(msg)
+    ser.write(str.encode(msg))
+
+print("hmm")
+ser.write(b"255x")
+osc_server.add_method("/rgb", "iii", rgb_callback)
 
 while True:
     if socket.poll(timeout=1000):

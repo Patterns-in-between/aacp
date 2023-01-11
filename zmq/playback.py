@@ -22,7 +22,7 @@ print("Log start time: " + str(logstart))
 
 start = time.time() # * 1e-9
 
-xsub_addr = 'tcp://slab.org:5556'
+xsub_addr = 'tcp://localhost:5556'
 context = zmq.Context()
 publisherSocket = context.socket(zmq.PUB)
 publisherSocket.connect(xsub_addr)
