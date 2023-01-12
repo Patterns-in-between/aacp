@@ -81,35 +81,35 @@ def incoming(self, floats):
       else:
         self._data.peakxy[i] = (0,0)
                             
-        # Time axis
-        # TODO - sample rate etc
-        self._data.freqs[i] = range(0,len(self._data.mags[i]))
-        
-        #ft = np.fft.rfft(x)
-        #freqs = np.fft.rfftfreq(len(x), 1/20) # Get frequency axis from the time axis
-        #mags = abs(ft) # We don't care about the phase information here
-        #self._data.freqs[i] = freqs[1:]
-        #self._data.mags[i] = mags[1:]
-        
-        # try: 
-        #     inflection = np.diff(np.sign(np.diff(mags)))
-        #     peaks = (inflection < 0).nonzero()[0] + 1
-        #     peak = peaks[mags[peaks].argmax()]
-        #     signal_freq = freqs[peak]
-        #     #print(str(i) + ": " + str(signal_freq))
-        #     total = total + signal_freq
-        #     if signal_freq > maximum:
-        #         maximum = signal_freq
-        #     signal_freqs.append(signal_freq)
-        # except:
-        #     print("oops")
-        #print("avg: %.2f max: %.2f" % (total/8, maximum))
-        if len(signal_freqs) == 8:
-          print("%.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f" % tuple(signal_freqs))
-          for x in range(0, 8):
-            liblo.send(target, "/ctrl", "cps" + str(x), float(signal_freqs[x]))
-        liblo.send(target, "/ctrl", "cpsavg", float(total/8))
-        liblo.send(target, "/ctrl", "cpsmax", float(maximum))
+      # Time axis
+      # TODO - sample rate etc
+      self._data.freqs[i] = range(0,len(self._data.mags[i]))
+      
+      #ft = np.fft.rfft(x)
+      #freqs = np.fft.rfftfreq(len(x), 1/20) # Get frequency axis from the time axis
+      #mags = abs(ft) # We don't care about the phase information here
+      #self._data.freqs[i] = freqs[1:]
+      #self._data.mags[i] = mags[1:]
+      
+      # try: 
+      #     inflection = np.diff(np.sign(np.diff(mags)))
+      #     peaks = (inflection < 0).nonzero()[0] + 1
+      #     peak = peaks[mags[peaks].argmax()]
+      #     signal_freq = freqs[peak]
+      #     #print(str(i) + ": " + str(signal_freq))
+      #     total = total + signal_freq
+      #     if signal_freq > maximum:
+      #         maximum = signal_freq
+      #     signal_freqs.append(signal_freq)
+      # except:
+      #     print("oops")
+  #print("avg: %.2f max: %.2f" % (total/8, maximum))
+  if len(signal_freqs) == 8:
+    print("%.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f" % tuple(signal_freqs))
+    for x in range(0, 8):
+      liblo.send(target, "/ctrl", "cps" + str(x), float(signal_freqs[x]))
+  liblo.send(target, "/ctrl", "cpsavg", float(total/8))
+  liblo.send(target, "/ctrl", "cpsmax", float(maximum))
   
 def autocorr(x):
     result = np.correlate(x, x, mode='full')
