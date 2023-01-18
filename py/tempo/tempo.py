@@ -12,13 +12,15 @@ import zmq
 import re
 import liblo
 import sys
-from statistics import median
+import statistics
 
 import link
 
-bpc = 4 # beats per cycle
-
 samplerate = 25
+
+window = 3 # in seconds
+
+bpc = 2 # beats per cycle
 
 # Initialise link with default tempo of 120
 linkclock = link.Link(120)
@@ -29,13 +31,35 @@ cps = (s.tempo() / bpc) / 60
 
 print("current cps: %f" % cps)
 
-def setTempo(bpm):
+def setTempo(new_cps, maxchange):
+    # maximum value to change cps by
+    maxchange = maxchange / samplerate
+    
     state = linkclock.captureSessionState()
-    state.setTempo(bpm, linkclock.clock().micros());
+    bpm = state.tempo()
+    cps = (bpm / 60) / bpc
+
+    change = new_cps - cps
+    #print("target: %.2f" % (new_cps))
+    
+    if abs(change) > maxchange:
+        if change > 0:
+            new_cps = cps + maxchange
+        else:
+            new_cps = cps - maxchange
+    else:
+        new_cps = cps + change
+
+        #print("current: %.2f new: %.2f difference: %.2f maxchange: %.2f" % (cps, new_cps, change, maxchange))
+
+    new_bpm = new_cps*60*bpc
+    #print("set cps: %.2f old bpm: %.2f new bpm: %.2f" % (new_cps, bpm, new_bpm))
+    state.setTempo(new_bpm, linkclock.clock().micros());
     linkclock.commitSessionState(state);
 
-subname = b"adjusted"
-addr = 'tcp://localhost:5555'
+subname = b"performer1"
+#addr = 'tcp://localhost:5555'
+addr = 'tcp://192.168.0.10:5555'
 
 try:
     osc_server = liblo.Server(7070)
@@ -44,7 +68,12 @@ except liblo.ServerError as err:
     sys.exit()
 
 
+count = 0
 def incoming(self, floats):
+  global count
+  count = count + 1
+  #if count % 4 > 0:
+  #return
   total = 0.0
   maximum = 0.0
   signal_freqs = []
@@ -54,7 +83,7 @@ def incoming(self, floats):
     self._data.XData[i].append(self._data.XData[i][-1] + 1)
     self._data.YData[i].append((floats[i] * 2) - 1)
 
-    if (len(self._data.YData[i]) > 250):
+    if (len(self._data.YData[i]) > (window * samplerate)):
       self._data.YData[i].pop(0) # remove first frequency
       self._data.XData[i].pop(0)
       
@@ -74,16 +103,29 @@ def incoming(self, floats):
       # find peaks in autocorrelation
       peaks = find_peaks(auto[0])[0]
       
-      lag = -1
       if len(peaks) > 0:
-        # find first peak with a confidence of 0.6 or greater
-        for peak in peaks:
-          if self._data.conf[i][peak] >= 0.6:
-            lag = peak
-            break
-      if lag > -1:
-        self._data.peakxy[i] = (lag/samplerate,self._data.mags[i][lag])
-        cps_values.append(1/(lag/samplerate))
+          # find variance
+          variance = 0
+          try:
+              variance = statistics.variance(auto[0])
+              # print("variance: %.2f" % variance)
+          except:
+              pass
+
+          # Ignore if variance is low - there might be little or no
+          # movement and autocorrelation might just be picking up
+          # noise / mains hum / heartbeat..
+          if variance > 0.1:
+              lag = -1
+              # find first peak with a confidence of 1.2 or greater
+              for peak in peaks:
+                  if self._data.conf[i][peak] >= 1.2:
+                      lag = peak
+                      #print("sensor %d cps %.2f conf %.2f var %.2f" % (i, 1/(peak/samplerate), self._data.conf[i][peak], variance))
+                      break
+              if lag > -1:
+                  self._data.peakxy[i] = (lag/samplerate,self._data.mags[i][lag])
+                  cps_values.append(1/(lag/samplerate))
       else:
         self._data.peakxy[i] = (0,0)
                             
@@ -92,24 +134,20 @@ def incoming(self, floats):
 
   if len(cps_values) > 0:
     if len(cps_values) > 1:
-      cps_value = median(cps_values)
-      print("multiple cps results: " + str(cps_values))
+      cps_value = statistics.median(cps_values)
+      #print("multiple cps results: " + str(cps_values))
     else:
       cps_value = cps_values[0]
-    print("set cps: %f" % cps_value)
+    # print("set cps: %f" % cps_value)
     liblo.send(target, "/ctrl", "sensedcps", float(cps_value))
-    setTempo(cps_value*60*2)
+    
+    setTempo(cps_value, 0.4)
   
-def autocorr(x):
-    result = np.correlate(x, x, mode='full')
-    return result[result.size // 2:]
+#if len(sys.argv) < 2:
+#    print("deva or juan?")
+#    exit(-1)
 
-
-if len(sys.argv) < 2:
-    print("deva or juan?")
-    exit(-1)
-
-person = sys.argv[1]
+person = subname
 
 try:
     target = liblo.Address("localhost", 6010)
@@ -193,17 +231,26 @@ class Fetch(threading.Thread):
         self._nextCall = time.time()
 
     def run(self):
+        global samplerate
         context = zmq.Context()
         subscriberSocket = context.socket(zmq.SUB)
         subscriberSocket.connect(addr)
         subscriberSocket.setsockopt(zmq.SUBSCRIBE, subname)
         
+        times = [time.time()]
         while True:
             osc_server.recv(0)
+            message_count = 0
             if subscriberSocket.poll(timeout=1):
+                times.append(time.time())
+                samplerate = 1/ ((times[-1] - times[0]) / len(times))
+                print("samplerate: %.2f" % samplerate)
+                if len(times) > 100:
+                    times.pop(0)
                 message = subscriberSocket.recv_multipart()
                 msg = str(message[0]) #.decode("utf-8")
                 msg = re.sub(r"^b'","",msg)
+                msg = re.sub(r"^\w+\s+","",msg) # remove name from start
                 msg = re.sub(r";.*$","",msg)
                 #print(msg)
                 if True: # re.search(person, msg):
