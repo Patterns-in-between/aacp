@@ -10,7 +10,7 @@ import zmq, liblo, re, datetime, os, time
 import linkclock
 
 #subnames = [b"textile1", b"textile2", b"textile3"]
-subnames = [b"performer1"]
+subnames = [b"ml"]
 
 context = zmq.Context()
 subscriberSocket = context.socket(zmq.SUB)
@@ -104,7 +104,7 @@ while 1:
     #key = 'handosc'
     #key = 'rand'
     #key = 'face'
-    key = 'performer1'
+    key = 'ml'
     
     if key in history:
         # clear out old history
@@ -147,7 +147,7 @@ while 1:
             else:
                 averages.append(0)
         mini = " ".join(map(str, averages))
-        liblo.send(osc_target, "/ctrl", "performer1p", mini)
+        liblo.send(osc_target, "/ctrl", "ml", mini)
         #print(mini)
         #print(averages)
         #print("seg %d len %d" % (segments, len(averages)))
@@ -182,16 +182,17 @@ while 1:
     while subscriberSocket.poll(timeout=1):
         message = subscriberSocket.recv_multipart()
         msg = str(message[0]) #.decode("utf-8")
-        #print(message)
+        print(message)
         msg = re.sub(r"^b'","",msg)
         msg = re.sub(r";.*$","",msg)
         msg = re.sub(r"'$","",msg)
 
         now = cycle_now()
         
-        m = re.search("performer1 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        m = re.search("ml ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
-            name = "performer1"
+            name = "ml"
+            print("match")
             a = float(m.group(1))
             b = float(m.group(2))
             c = float(m.group(3))
@@ -199,7 +200,7 @@ while 1:
             #print("ah: " + str(a))
             if not name in history:
                 history[name] = []
-            history[name].append((now, b))
+            history[name].append((now, a))
         if msg == 'rand':
             if not 'rand' in history:
                 history['rand'] = []
