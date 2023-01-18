@@ -9,7 +9,8 @@ import zmq, liblo, re, datetime, os, time
 
 import linkclock
 
-subnames = [b"textile1", b"textile2", b"textile3"]
+#subnames = [b"textile1", b"textile2", b"textile3"]
+subnames = [b"performer1"]
 
 context = zmq.Context()
 subscriberSocket = context.socket(zmq.SUB)
@@ -103,7 +104,7 @@ while 1:
     #key = 'handosc'
     #key = 'rand'
     #key = 'face'
-    key = 'textile2'
+    key = 'performer1'
     
     if key in history:
         # clear out old history
@@ -146,7 +147,7 @@ while 1:
             else:
                 averages.append(0)
         mini = " ".join(map(str, averages))
-        liblo.send(osc_target, "/ctrl", "textile2p", mini)
+        liblo.send(osc_target, "/ctrl", "performer1p", mini)
         #print(mini)
         #print(averages)
         #print("seg %d len %d" % (segments, len(averages)))
@@ -188,9 +189,9 @@ while 1:
 
         now = cycle_now()
         
-        m = re.search("textile2 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
+        m = re.search("performer1 ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
-            name = "textile2"
+            name = "performer1"
             a = float(m.group(1))
             b = float(m.group(2))
             c = float(m.group(3))
