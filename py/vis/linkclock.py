@@ -96,10 +96,9 @@ class LinkClock:
 
         ticks = 0
 
-        # FIXME rate, bpc and latency should be constructor parameters
+        # FIXME rate and latency should be constructor parameters
         rate = 1 / 20
         frame = rate * mill
-        bpc = 4
 
         while self._is_running:
             ticks = ticks + 1
@@ -118,12 +117,12 @@ class LinkClock:
                 break
 
             s = self._link.captureSessionState()
-            cps = (s.tempo() / bpc) / 60
-            cycle_from = s.beatAtTime(logical_now, 0) / bpc
-            cycle_to = s.beatAtTime(logical_next, 0) / bpc
+            cps = (s.tempo() / self.bpc) / 60
+            cycle_from = s.beatAtTime(logical_now, 0) / self.bpc
+            cycle_to = s.beatAtTime(logical_next, 0) / self.bpc
 
             for sub in self._subscribers:
-                sub.notify_tick((cycle_from, cycle_to), s, cps, bpc, mill, now)
+                sub.notify_tick((cycle_from, cycle_to), s, cps, self.bpc, mill, now)
 
             # sys.stdout.write(
             #     "cps %.2f | playing %s | cycle %.2f\r"

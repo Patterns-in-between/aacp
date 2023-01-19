@@ -31,7 +31,7 @@ cps = 0.5625
 #cycletime = time.time()
 values = {}
 
-link_clock = linkclock.LinkClock(120, 8, 0)
+link_clock = linkclock.LinkClock(120, 2, 0)
 link_clock.start()
 
 def cycle_now():
@@ -158,7 +158,7 @@ while 1:
             y = d * math.sin((i/segments)*math.tau-half_pi);
             x2 = d * math.cos(((i+1)/segments)*math.tau-half_pi);
             y2 = d * math.sin(((i+1)/segments)*math.tau-half_pi);
-            if ((i % segments) == (math.floor(now * 16) % 16)):
+            if ((i % segments) == (math.floor(now * segments) % segments)):
                 colour = (255,255,255)
             else:
                 colour = (128,128,128)
@@ -182,7 +182,7 @@ while 1:
     while subscriberSocket.poll(timeout=1):
         message = subscriberSocket.recv_multipart()
         msg = str(message[0]) #.decode("utf-8")
-        print(message)
+        #print(message)
         msg = re.sub(r"^b'","",msg)
         msg = re.sub(r";.*$","",msg)
         msg = re.sub(r"'$","",msg)
@@ -192,7 +192,7 @@ while 1:
         m = re.search("ml ([0-9\.]+) ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)", msg)
         if m:
             name = "ml"
-            print("match")
+            #print("match")
             a = float(m.group(1))
             b = float(m.group(2))
             c = float(m.group(3))
