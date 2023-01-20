@@ -21,14 +21,16 @@ subscriberSocket = context.socket(zmq.SUB)
 subscriberSocket.connect('tcp://192.168.0.10:5555')
 # subscriberSocket.connect('tcp://127.0.0.1:5555')
 
+samplerate = 25 # TODO - calculate this
+
 osc_target = liblo.Address("localhost", 6010)
 
 half_pi = math.pi/2
 
-segments = 64
+segments = 16
 
 tick = 0
-cycle = 0
+cycle = 4
 cps = 0.5625
 #cycletime = time.time()
 values = {}
@@ -124,7 +126,9 @@ while 1:
             average_bins.append([])
 
         # Find peaks for values
-        peaks = find_peaks([row[1] for row in history[key]])[0]
+        peaks = find_peaks([row[1] for row in history[key]],
+                           distance = samplerate/8 # peaks at least 1/8 of a second apart ?
+                           )[0]
         def to_cycle_and_value(i):
             return ((history[key][i][0]) % 1, history[key][i][1])
         
