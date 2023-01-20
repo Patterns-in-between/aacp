@@ -11,6 +11,8 @@ from scipy.signal import find_peaks
 
 import linkclock
 
+import statistics
+
 #subnames = [b"textile1", b"textile2", b"textile3"]
 subnames = [b"ml"]
 
@@ -28,6 +30,8 @@ osc_target = liblo.Address("localhost", 6010)
 half_pi = math.pi/2
 
 segments = 16
+
+peak_segments = 16
 
 tick = 0
 cycle = 0
@@ -131,12 +135,17 @@ while 1:
                            width = samplerate/8, # peaks at least 1/8 of a second 'wide' ?
                            #prominence=(None, 0.6)
                            )[0]
+        
         def to_cycle_and_value(i):
             return ((history[key][i][0]) % 1, history[key][i][1])
         
         peak_t = list(map(to_cycle_and_value, peaks))
         peak_t.sort()
-                    
+
+        # filter out small peaks
+        peak_t = list(filter(lambda x: x[1] > 0.1, peak_t))
+
+        
         for (t, value) in history[key]:
             #print("t: %f, value: %f" % (t, value))
             x = (value * 300 * math.cos((t % 1)*math.tau-half_pi))+midx;
@@ -162,6 +171,32 @@ while 1:
         #print(mini)
         #print(averages)
         #print("seg %d len %d" % (segments, len(averages)))
+
+        peak_bin_bools = [False] * peak_segments
+        
+        if len(peak_t) > 0:
+            # quantise the peaks
+            peak_bins = []
+            for i in range(0, peak_segments):
+                peak_bins.append([])
+            for x in peak_t:
+                pos, val = x
+                peak_bin = math.floor(pos * peak_segments)
+                print("peak in bin %d from pos %.2f" % (peak_bin, pos))
+                peak_bins[peak_bin].append(val)
+                peak_bin_bools[peak_bin] = True
+
+            peak_bin_mini = []
+            for i in range(0, peak_segments):
+                if len(peak_bins[i]) == 0:
+                    peak_bin_mini.append("~")
+                else:
+                    peak_bin_mini.append("%.4f" % statistics.mean(peak_bins[i]))
+
+            print(" ".join(peak_bin_mini))
+            liblo.send(osc_target, "/ctrl", "peakbins", " ".join(peak_bin_mini))
+        else:
+            liblo.send(osc_target, "/ctrl", "peakbins", " ")
         
         for i in range(0,segments):
             d = 300
@@ -172,7 +207,10 @@ while 1:
             if ((i % segments) == (math.floor(now * segments) % segments)):
                 colour = (255,255,255)
             else:
-                colour = (128,128,128)
+                if (peak_bin_bools[i % peak_segments]):
+                    colour = (128,128,255)
+                else:
+                    colour = (128,128,128)
             # pygame.draw.circle(screen, white, (x+(width/2),y+(height/2)), 10)
             w = 1 + (averages[i]/2)
             pygame.draw.polygon(screen, colour, ((x+midx,y+midy),
@@ -184,11 +222,13 @@ while 1:
         #print("points: %d"%  (len(points)))
         if len(points) > 1:
             pygame.draw.lines(screen, (255,255,255), False, points, 4)
-
-        if len(peak_t) > 0:         
+            
+        if len(peak_t) > 0:
+            # turn peak times into a list of durations with values,
+            # drawing the peaks as circles as we go..
             peak_durs = []
             peak_durs.append((peak_t[0][0], None))
-        
+            
             for i, x in enumerate(peak_t):
                 (p, val) = x
 
@@ -203,6 +243,7 @@ while 1:
                     dur = 1 - p
                 peak_durs.append((dur, val))
 
+            # construct mini-notation string
             peak_mini = []
             for dur, val in peak_durs:
                 if val == None:
