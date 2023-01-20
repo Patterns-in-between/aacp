@@ -81,7 +81,7 @@ def incoming(self, floats):
   signal_freqs = []
   cps_values = []
   
-  for i in range(0,8):
+  for i in range(0,6):
     self._data.XData[i].append(self._data.XData[i][-1] + 1)
     self._data.YData[i].append((floats[i] * 2) - 1)
 
@@ -164,25 +164,25 @@ class Data():
 
     def __init__(self):
 
-        self.XData = [[0],[0],[0],[0],[0],[0],[0],[0]]
-        self.YData = [[0],[0],[0],[0],[0],[0],[0],[0]]
-        self.freqs = [[0],[0],[0],[0],[0],[0],[0],[0]]
-        self.mags  = [[0],[0],[0],[0],[0],[0],[0],[0]]
-        self.conf  = [[0],[0],[0],[0],[0],[0],[0],[0]]
+        self.XData = [[0],[0],[0],[0],[0],[0]]
+        self.YData = [[0],[0],[0],[0],[0],[0]]
+        self.freqs = [[0],[0],[0],[0],[0],[0]]
+        self.mags  = [[0],[0],[0],[0],[0],[0]]
+        self.conf  = [[0],[0],[0],[0],[0],[0]]
         self.peakxy  = [(2,1),(2,1),(2,1),(2,1),(2,1),(2,1),(2,1),(2,1)]
 
 class Plot():
     def __init__(self, data):
 
         self._data = data
-        fig, axs = plt.subplots(3,8)
+        fig, axs = plt.subplots(3,6)
         fig.suptitle(person)
         self.fftline = []
         self.sigline = []
         self.confline = []
         self.annotation = []
         
-        for i in range(0,8):
+        for i in range(0,6):
             confline, = axs[0,i].plot(0, 0)
             self.confline.append(confline)
             
@@ -206,7 +206,7 @@ class Plot():
 
     def run(self, x):  
         #print("plotting data")
-        for i in range(0,8):
+        for i in range(0,6):
             self.sigline[i].set_data(self._data.XData[i], self._data.YData[i])
             self.fftline[i].set_data(self._data.freqs[i], self._data.mags[i])
             self.confline[i].set_data(self._data.freqs[i], self._data.conf[i])
