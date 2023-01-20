@@ -13,6 +13,7 @@ import re
 import liblo
 import sys
 import statistics
+import math
 
 import link
 
@@ -31,7 +32,8 @@ cps = (s.tempo() / bpc) / 60
 
 print("current cps: %f" % cps)
 
-def setTempo(new_cps, maxchange):
+def setTempo(target, maxchange):
+    new_cps = target
     # maximum value to change cps by
     maxchange = maxchange / samplerate
     
@@ -53,7 +55,7 @@ def setTempo(new_cps, maxchange):
         #print("current: %.2f new: %.2f difference: %.2f maxchange: %.2f" % (cps, new_cps, change, maxchange))
 
     new_bpm = new_cps*60*bpc
-    #print("set cps: %.2f old bpm: %.2f new bpm: %.2f" % (new_cps, bpm, new_bpm))
+    print("set cps: %.2f target: %.2f old bpm: %.2f new bpm: %.2f" % (new_cps, target, bpm, new_bpm))
     state.setTempo(new_bpm, linkclock.clock().micros());
     linkclock.commitSessionState(state);
 
@@ -112,16 +114,19 @@ def incoming(self, floats):
           except:
               pass
 
-          # Ignore if variance is low - there might be little or no
-          # movement and autocorrelation might just be picking up
-          # noise / mains hum / heartbeat..
-          if variance > 0.1:
+          rnge = 0
+          last_second = x[0-math.floor(samplerate):]
+          rnge = max(last_second) - min(last_second)
+          #print("range: %.2f" % rnge)
+          
+          # Ignore if range is low - performer isn't moving much
+          if rnge > 0.25:
               lag = -1
               # find first peak with a confidence of 1.2 or greater
               for peak in peaks:
                   if self._data.conf[i][peak] >= 1.2:
                       lag = peak
-                      #print("sensor %d cps %.2f conf %.2f var %.2f" % (i, 1/(peak/samplerate), self._data.conf[i][peak], variance))
+                      print("sensor %d cps %.2f conf %.2f range %.2f" % (i, 1/(peak/samplerate), self._data.conf[i][peak], rnge))
                       break
               if lag > -1:
                   self._data.peakxy[i] = (lag/samplerate,self._data.mags[i][lag])
