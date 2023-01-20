@@ -30,7 +30,7 @@ half_pi = math.pi/2
 segments = 16
 
 tick = 0
-cycle = 4
+cycle = 0
 cps = 0.5625
 #cycletime = time.time()
 values = {}
@@ -127,7 +127,9 @@ while 1:
 
         # Find peaks for values
         peaks = find_peaks([row[1] for row in history[key]],
-                           distance = samplerate/8 # peaks at least 1/8 of a second apart ?
+                           distance = samplerate/3, # peaks at least 1/3 a second apart ?
+                           width = samplerate/8, # peaks at least 1/8 of a second 'wide' ?
+                           #prominence=(None, 0.6)
                            )[0]
         def to_cycle_and_value(i):
             return ((history[key][i][0]) % 1, history[key][i][1])
@@ -204,10 +206,11 @@ while 1:
             peak_mini = []
             for dur, val in peak_durs:
                 if val == None:
-                    peak_mini.append("~@%.4f" % dur)
+                    peak_mini.append("~@%.4f" % max(dur, 0.0001)) # avoid 0 durations!
                 else:
-                    peak_mini.append("%.4f@%.4f" % (val, dur))
+                    peak_mini.append("%.4f@%.4f" % (val, max(dur, 0.0001)))
             joined_mini = " ".join(peak_mini)
+            print(joined_mini)
             liblo.send(osc_target, "/ctrl", "peaks", joined_mini)
             
     # pygame.draw.rect(screen, white, (100,100,200,200))
