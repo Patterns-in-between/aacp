@@ -1,0 +1,127 @@
+Submission ID: 110
+
+Title: MosAIk: staging contemporary AI performance - reflections on connecting live coding, e-textile and movement…
+
+Status: Accept
+
+Reviewer 1:
+
+Author Comments: * Summary of the contribution:
+This paper demonstrates how to combine the "intelligences" of artificial intelligence, live coding, movement, and user interfaces. Rather than create a strict definition, this paper opens to a broader and more inclusive definition through concepts like heritage algorithms.
+
+* On theme (1-5):
+4
+
+* Citation quality (1-5):
+4
+
+* Missing references:
+Everything I've thought of so far, grazes off the side and doesn't hit the content of the paper squarely. I'm sure there's something. The best I could think of would be to suggest looking at Rebecca Fiebrink's work. They have some machine learning for embodied interaction design research, machine learning for music genre rhythms, and the wekinator for supervised machine learning of movement to any OSC output or music generation. Then from really old media arts ideas of interactivity because it's related to sound generation is David Rokeby's Very Nervous System http://www.davidrokeby.com/vns.html and his subsequent thoughts after making and reflecting on the work http://www.davidrokeby.com/mirrorsintro.html
+
+It might be helpful to know the work or Ron Eglash https://roneglash.org with regards to heritage algorithms.
+
+I'm not so sure I would say these are missing, but could be informative for further research.
+
+* Suggested improvements:
+
+I was slightly caught off guard with the quick leap into trying to reduce action to reaction latency in section 3. I think I was looking for a defined problem that occurred that lead to this need to reduce latency. Although, I do see how it directed the results.
+
+Some light proofreading would probably catch any awkward grammar, missing letters, or sentences that need a little smoothing out.
+
+I enjoyed reading the Sheffield prototype performance description, but I super missed having a video. I did search google and found some older video documentation that did help give me a more holistic sense of how things are interconnected visually and sonically. Why was there a drone - artistically I see why, but I'd like to hear from the authors as it could be seen as out of place.
+
+I'm familiar with tidal, but certainly not an expert. This
+"^textile1a"
+in the first code sample and
+textile 0
+in the second caught my attention because it indicated to me the passing of external variables to the tidal interpreter which is mentioned in the paper. I've not seen this usage of external variables in tidal and wondered if that is also unique? It might just be new to this reviewer and not the overall tidalcycles environment.
+
+I appreciated the Staging AI section and the intentional reflection.
+
+I thought the usage of heritage algorithms a really helpful segue into how the varied intelligence are explained to be interwoven.
+
+* Clarity (1-5):
+4
+
+* Corrections required:
+no
+
+* Other Changes if Published:
+quick read through by and editor/proofreader
+
+* Correct Template used?
+Yes
+
+* All materials provided?
+Yes
+
+* Wordcount respected?
+Yes
+
+* Have any deviations, errors or omissions impacted your ability to give a fair review?
+no
+
+* General remarks:
+This paper demonstrates how to combine the "intelligences" of artificial intelligence, live coding, movement, and user interfaces. Rather than create a strict definition, this paper opens to a broader and more inclusive definition through concepts like heritage algorithms.
+
+
+Everything I've thought of so far, grazes off the side and doesn't hit the content of the paper squarely. I'm sure there's something. The best I could think of would be to suggest looking at Rebecca Fiebrink's work. They have some machine learning for embodied interaction design research, machine learning for music genre rhythms, and the wekinator for supervised machine learning of movement to any OSC output or music generation. Then from really old media arts ideas of interactivity because it's related to sound generation is David Rokeby's Very Nervous System http://www.davidrokeby.com/vns.html and his subsequent thoughts after making and reflecting on the work http://www.davidrokeby.com/mirrorsintro.html
+
+It might be helpful to know the work or Ron Eglash https://roneglash.org with regards to heritage algorithms.
+
+I'm not so sure I would say these are missing, but could be informative for further research.
+
+
+I was slightly caught off guard with the quick leap into trying to reduce action to reaction latency in section 3. I think I was looking for a defined problem that occurred that lead to this need to reduce latency. Although, I do see how it directed the results.
+
+Some light proofreading would probably catch any awkward grammar, missing letters, or sentences that need a little smoothing out.
+
+I enjoyed reading the Sheffield prototype performance description, but I super missed having a video. I did search google and found some older video documentation that did help give me a more holistic sense of how things are interconnected visually and sonically. Why was there a drone - artistically I see why, but I'd like to hear from the authors as it could be seen as out of place.
+
+I'm familiar with tidal, but certainly not an expert. This
+"^textile1a"
+in the first code sample and
+textile 0
+in the second caught my attention because it indicated to me the passing of external variables to the tidal interpreter which is mentioned in the paper. I've not seen this usage of external variables in tidal and wondered if that is also unique? It might just be new to this reviewer and not the overall tidalcycles environment.
+
+I appreciated the Staging AI section and the intentional reflection.
+
+I thought the usage of heritage algorithms a really helpful segue into how the varied intelligence are explained to be interwoven.
+
+Reviewer 2:
+
+Author Comments: * Summary of the contribution:
+Integrates live coding, e-textiles, movement and AI/ML pattern recognition algorithms into cohesive creative practice. The potential possibilities of AI/ML technologies embedded within creative practice are well-considered. Discussion of the topics at hand in the early stages of the project and 'signal flow' of generative materials are well-documented.
+
+* On theme (1-5):
+5
+
+* Citation quality (1-5):
+4
+
+* Missing references:
+https://betweensystemsandgrounds.com/; https://ashatamirisa.net/ARTIFACT
+
+* Suggested improvements:
+A critical acknowledgement of the historical feminization of textiles as a technology and dance as a creative practice would be a welcome addition.
+
+* Clarity (1-5):
+4
+
+* Corrections required:
+n/a
+
+* Other Changes if Published:
+not answered
+
+* Correct Template used?
+Yes
+
+* All materials provided?
+Yes
+
+* Wordcount respected?
+Yes
+
+* Have any deviations, errors or omissions impacted your ability to give a fair review?
+no 
