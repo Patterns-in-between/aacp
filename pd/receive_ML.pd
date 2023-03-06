@@ -1,4 +1,4 @@
-#N canvas 36 23 1176 730 12;
+#N canvas 181 23 1176 730 12;
 #X msg 53 64 socket subscribe;
 #X obj 7 38 t b b b;
 #X obj 8 17 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
@@ -430,6 +430,7 @@
 #X text 244 281 ml;
 #X obj 283 102 tgl 14 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0 1;
 #X obj 104 43 spigot;
+#X obj 292 354 outlet;
 #X connect 12 0 0 0;
 #X connect 12 1 1 0;
 #X connect 12 2 2 0;
@@ -437,6 +438,7 @@
 #X connect 12 4 4 0;
 #X connect 12 5 5 0;
 #X connect 12 6 14 0;
+#X connect 12 6 23 0;
 #X connect 12 7 15 0;
 #X connect 13 0 22 0;
 #X connect 18 0 19 0;
@@ -795,6 +797,15 @@
 #X restore 839 462 pd controller_pm5;
 #X obj 8 189 route pm1 pm2 pm3 pm4 pm5;
 #X obj 196 188 route pm1 pm2 pm3 pm4 pm5;
+#X obj 716 101 readsf~;
+#X msg 742 74 1;
+#X obj 739 45 t b b;
+#X obj 715 8 bng 19 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000;
+#X obj 733 155 dac~;
+#X msg 777 71 open au.wav;
+#X obj 898 76 > 0.4;
+#X obj 898 103 change;
+#X obj 895 126 sel 1;
 #X connect 0 0 3 0;
 #X connect 1 0 4 0;
 #X connect 1 0 14 0;
@@ -815,6 +826,7 @@
 #X connect 14 0 3 0;
 #X connect 15 0 28 0;
 #X connect 15 1 29 0;
+#X connect 20 0 36 0;
 #X connect 25 0 3 0;
 #X connect 25 0 9 0;
 #X connect 28 0 20 0;
@@ -827,3 +839,13 @@
 #X connect 29 2 22 1;
 #X connect 29 3 23 1;
 #X connect 29 4 26 1;
+#X connect 30 0 34 0;
+#X connect 30 0 34 1;
+#X connect 31 0 30 0;
+#X connect 32 0 31 0;
+#X connect 32 1 35 0;
+#X connect 33 0 32 0;
+#X connect 35 0 30 0;
+#X connect 36 0 37 0;
+#X connect 37 0 38 0;
+#X connect 38 0 33 0;
