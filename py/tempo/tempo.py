@@ -17,7 +17,7 @@ import math
 
 import link
 
-samplerate = 25
+samplerate = 40
 
 window = 3 # in seconds
 
@@ -34,12 +34,15 @@ print("current cps: %f" % cps)
 
 def setTempo(target, maxchange):
     new_cps = target
+    #print("bpm: %.2f" % (new_cps*60*bpc))
     # maximum value to change cps by
     maxchange = maxchange / samplerate
+    #print("maxchange: %.2f" % (maxchange))
     
     state = linkclock.captureSessionState()
     bpm = state.tempo()
     cps = (bpm / 60) / bpc
+    
 
     change = new_cps - cps
     #print("target: %.2f" % (new_cps))
@@ -59,7 +62,7 @@ def setTempo(target, maxchange):
     state.setTempo(new_bpm, linkclock.clock().micros());
     linkclock.commitSessionState(state);
 
-subname = b"performer1"
+subname = b"drummer"
 #addr = 'tcp://localhost:5555'
 addr = 'tcp://192.168.0.10:5555'
 
@@ -71,6 +74,7 @@ except liblo.ServerError as err:
 
 
 count = 0
+cps_temp = 0.0
 def incoming(self, floats):
   global count
   count = count + 1
@@ -80,6 +84,10 @@ def incoming(self, floats):
   maximum = 0.0
   signal_freqs = []
   cps_values = []
+  global cps_temp
+
+  
+  
   
   for i in range(0,6):
     self._data.XData[i].append(self._data.XData[i][-1] + 1)
@@ -115,18 +123,19 @@ def incoming(self, floats):
               pass
 
           rnge = 0
-          last_second = x[0-math.floor(samplerate):]
+          #last_second = x[0-math.floor(samplerate):]
+          last_second = x[-25:]
           rnge = max(last_second) - min(last_second)
-          #print("range: %.2f" % rnge)
+          #print("rnge: %.2f"% rnge)
           
           # Ignore if range is low - performer isn't moving much
-          if rnge > 0.25:
+          if rnge > 0.1:
               lag = -1
-              # find first peak with a confidence of 1.2 or greater
+              # find first peak with a confidence of 1.2 or greater >> made it 0.5
               for peak in peaks:
-                  if self._data.conf[i][peak] >= 1.2:
+                  if self._data.conf[i][peak] >= 0.8:
                       lag = peak
-                      print("sensor %d cps %.2f conf %.2f range %.2f" % (i, 1/(peak/samplerate), self._data.conf[i][peak], rnge))
+                      #print("sensor %d cps %.2f conf %.2f range %.2f" % (i, 1/(peak/samplerate), self._data.conf[i][peak], rnge))
                       break
               if lag > -1:
                   self._data.peakxy[i] = (lag/samplerate,self._data.mags[i][lag])
@@ -136,6 +145,7 @@ def incoming(self, floats):
                             
       # Time axis
       self._data.freqs[i] = list(map(lambda x: x / samplerate, range(0,len(self._data.mags[i]))))
+      setTempo(cps_temp, 0.2)
 
   if len(cps_values) > 0:
     if len(cps_values) > 1:
@@ -143,11 +153,14 @@ def incoming(self, floats):
       #print("multiple cps results: " + str(cps_values))
     else:
       cps_value = cps_values[0]
-    # print("set cps: %f" % cps_value)
-    liblo.send(target, "/ctrl", "sensedcps", float(cps_value))
-    
-    setTempo(cps_value, 0.4)
-  
+    #print("set cps: %f" % cps_value)
+    #liblo.send(target, "/ctrl", "sensedcps", float(cps_value))
+    cps_temp = cps_value
+  else:
+    cps_temp = 0.1
+    #setTempo(cps_value, 0.4)
+
+ 
 #if len(sys.argv) < 2:
 #    print("deva or juan?")
 #    exit(-1)
@@ -249,7 +262,7 @@ class Fetch(threading.Thread):
             if subscriberSocket.poll(timeout=1):
                 times.append(time.time())
                 samplerate = 1/ ((times[-1] - times[0]) / len(times))
-                print("samplerate: %.2f" % samplerate)
+                #print("samplerate: %.2f" % samplerate)
                 if len(times) > 100:
                     times.pop(0)
                 message = subscriberSocket.recv_multipart()
@@ -265,7 +278,7 @@ class Fetch(threading.Thread):
                     incoming(self, floats)
                 
 data = Data()
-plotter = Plot(data)
+#plotter = Plot(data)
 fetcher = Fetch(data)
 
 def glove_callback(path, args):
