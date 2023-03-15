@@ -31,19 +31,23 @@ bibliography: references.bib
 
 # Introduction
 
-This project began in September 2020 as a response to a funding call by the 'LINK masters' initiative to produce an artistic work using Artificial Intelligence. Our multidisciplinary team: choreographers and performers, live coders and e-textile makers gathered together to strategise how AI could inform an artistic performance work, both in terms of the concepts from AI that could be explored through the work, and how AI tools could be explored to realise the work.
+In this paper, we describe how an AI-informed artistic performance work was created by a multidisciplinary team, challenging conventional notions of intelligence and delving into the spiritual and social dimensions of AI through a the framework of "rituals". This project began in September 2020 as a response to a funding call by the 'LINK masters' initiative to produce an artistic work using Artificial Intelligence. Our multidisciplinary team: choreographers and performers, live coders and e-textile makers gathered together to strategise how AI could inform an artistic performance work, both in terms of the concepts from AI that could be explored through the work, and how AI tools could be explored to realise the work.
 
 In terms of AI concepts, we wanted to challenge mainstream ideas of AI, such as the emulation of human neural pathways as the method of creating new intelligences. Instead, we decided to take a collective view of intelligence. In developing an approach to performance we created a framework of our own ritual, to call into question the spiritual and social dimension of AI, and to connect machine learning with patterning techniques informed by ancient traditions. In terms of tools, a wide range of technologies have been branded as AI. Accordingly we have explored a range of techniques, with some focus on machine learning, machine listening and neural audio synthesis.
 
 By treating intelligence as collaborative, we undermine the dualist thinking of body/mind as well as science/fiction, and open ourselves to a more human-centric approach to AI, in terms of pattern generation, pattern recognition and connectedness, but also resonance, textility, perhaps even spirituality. Inspired by public ceremonies and formalistic celebrations performed by humans since ancient times, the final performance hosts a collective, healing ritual that searches for a new spiritual code.
 
-# [Background] Establishing rituals
+#  Establishing rituals
 
 An ephemeral shift at the end of the 19th century saw advancements in science and technology that provoked interest in mystical practices, rituals and spirituality – sounds emerged from mysterious boxes, light could appear inside a small glass bulb, and photography and cinema pushed the boundaries of art and technology. Discourse in occultism augmented as an antithetical practice to the emerging technologies of the era.
 
 Our contemporary relationship with mediating intelligence has led us to once again explore esoteric practices to decipher wider meaning from our developments in AI. People are turning to AI in a monotheistic way in the same way that earlier generations turned to religion. Musings on AI in the media are mostly prone to using the singular noun “an AI”- resonating with Western monotheistic cultural practices.
 
-The project attempts to establish a ritual, which aims to turn the singular noun variant of “an AI” into its counterpoint- “artificial intelligence”. An intelligence that is not centred in a small plastic case, or a human or animal body, but instead as something animalistic, distributed across many spirits and all encompassing.
+As technological developments continue to accelerate, individuals have started to begin to explore esoteric and spiritual practices as a way to understand and contextualize the role of technology in their lives. From mindfulness apps that blend ancient meditation techniques with modern technology to the growing popularity of techno-shamanism, where technology is used as a tool for spiritual exploration, it's clear that the intersection of technology and spirituality is becoming more prevalent in contemporary society [@davis1993techgnosis].
+
+By exploring the spiritual dimensions of AI through a unique ritualistic framework, this project provides a new perspective on our relationship with technology. The ritual we outline aims to turn understanding of AI in its singular noun variant of “an AI” into its counterpoint- “artificial intelligence”. An intelligence that is not centred in a small plastic case, or a human or animal body, but instead as something animalistic, distributed across many spirits and all encompassing. 
+
+In this paper, we turn first turn to a discussion on how we could construct this ritual using our existing technological practices- creating a system to interface the e-textile components with the computer technologies, such as live coding and neural networks. We then discuss the application of these to performance-based practices, discussing the benefits and drawbacks of how we staged the ritual in a performance in No Bounds Festival in Sheffield in October 2022. An account of this performance is given by the performers from their perspective. We then conclude with reflections and future directions for this project.     
 
 # Live data flows and time travel
 
