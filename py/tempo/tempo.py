@@ -145,7 +145,7 @@ def incoming(self, floats):
                             
       # Time axis
       self._data.freqs[i] = list(map(lambda x: x / samplerate, range(0,len(self._data.mags[i]))))
-      setTempo(cps_temp, 0.2)
+      setTempo(cps_temp, 0.02)
 
   if len(cps_values) > 0:
     if len(cps_values) > 1:
@@ -156,8 +156,12 @@ def incoming(self, floats):
     #print("set cps: %f" % cps_value)
     #liblo.send(target, "/ctrl", "sensedcps", float(cps_value))
     cps_temp = cps_value
+    if cps_temp<0.8:
+        cps_temp = 0.8
+    if cps_temp>1.3:
+        cps_temp = 1.3
   else:
-    cps_temp = 0.1
+    cps_temp = 0.8
     #setTempo(cps_value, 0.4)
 
  
