@@ -1,16 +1,21 @@
 #!/usr/bin/python3
 
+run_osc = 0
+run_link = 0
+
 # import matplotlib.pyplot as plt
 # from matplotlib.animation import FuncAnimation
 import statsmodels.api as sm
-import numpy as np
+# import numpy as np
 from scipy.signal import find_peaks
 import threading
-import random
 import time
 import zmq
-import re
-import liblo
+if run_osc:
+    import liblo
+if run_link:
+    import link
+
 import sys
 import statistics
 import math
@@ -19,20 +24,35 @@ samplerate = 40
 window = 3 # in seconds
 bpm = 60
 bpc = 2
-
-
 count = 0
 
+cps_target = 0.5
+
+if run_osc:
+    try:
+        osc_server = liblo.Server(7070)
+    except liblo.ServerError as err:
+        print(err)
+        sys.exit()
+
+if run_link:
+    linkclock = link.Link(120)
+    linkclock.enabled = True
+    time.sleep(2)
+    s = linkclock.captureSessionState()
+    bpm = s.tempo()
+
 def setTempo(target, maxchange):
+    global bpm, state
     new_cps = target
-    #print("bpm: %.2f" % (new_cps*60*bpc))
+
     # maximum value to change cps by
     maxchange = maxchange / samplerate
-    #print("maxchange: %.2f" % (maxchange))
+    # print("maxchange: %.4f" % (maxchange), samplerate)
     
     cps = (bpm / 60) / bpc
     change = new_cps - cps
-    print("target: %.2f" % (new_cps))
+    # print("target: %.2f" % (new_cps))
     
     if abs(change) > maxchange:
         if change > 0:
@@ -46,10 +66,22 @@ def setTempo(target, maxchange):
 
     new_bpm = new_cps*60*bpc
     print("set cps: %.2f target: %.2f old bpm: %.2f new bpm: %.2f" % (new_cps, target, bpm, new_bpm))
+    bpm = new_bpm
 
+    if run_link:
+        print("setting %.4f" % bpm)
+        state = linkclock.captureSessionState()
+        state.setTempo(bpm, linkclock.clock().micros());
+        linkclock.commitSessionState(state);
+
+
+times = [time.time()]
 
 def incoming(self, floats):
-  global count
+  global count, samplerate, times, cps_target
+  times.append(time.time())
+  samplerate = 1/ ((times[-1] - times[0]) / len(times))
+
   count = count + 1
   total = 0.0
   maximum = 0.0
@@ -79,7 +111,6 @@ def incoming(self, floats):
 
       # find peaks in autocorrelation
       peaks = find_peaks(auto[0])[0]
-
       if len(peaks) > 0:
           # find variance
           variance = 0
@@ -113,11 +144,11 @@ def incoming(self, floats):
 
   if len(cps_values) > 0:
     if len(cps_values) > 1:
-      cps_value = statistics.median(cps_values)
+      cps_target = statistics.median(cps_values)
       #print("multiple cps results: " + str(cps_values))
     else:
-      cps_value = cps_values[0]
-      setTempo(cps_value, 0.02)
+      cps_target = cps_values[0]
+  setTempo(cps_target, 0.5)
 
 class Data():
 
@@ -145,19 +176,33 @@ class Fetch(threading.Thread):
         
         times = [time.time()]
         while True:
+            if run_osc:
+                osc_server.recv(1000)
+
             if len(times) > 100:
                 times.pop(0)
-
             # Get data here
-            floats = [1,1,1]
-            incoming(self, floats)
-
-            times.append(time.time())
-            samplerate = 1/ ((times[-1] - times[0]) / len(times))
+            #floats = [1,1,1]
+            #incoming(self, floats)
 
 data = Data()
 fetcher = Fetch(data)
 fetcher.start()
 #fetcher.join()
+
+if run_osc:
+    def osc_callback(path, args):
+        floats = [0,0,0]
+        for i, arg in enumerate(args):
+            floats[i] = float(arg)
+        incoming(fetcher, floats)
+    osc_server.add_method("/alex", "fff", osc_callback)
+
+    def fallback(path, args, types, src):
+        print("got unknown message '%s' from '%s'" % (path, src.url))
+        for a, t in zip(args, types):
+            print("argument of type '%s': %s" % (t, a))
+    osc_server.add_method(None, None, fallback)
+
 
 print("aha")
