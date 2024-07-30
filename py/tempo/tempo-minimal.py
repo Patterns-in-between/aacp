@@ -2,29 +2,47 @@
 
 run_osc = 0
 run_link = 0
+run_plot = 0
+run_zmq = 0
 
-# import matplotlib.pyplot as plt
-# from matplotlib.animation import FuncAnimation
+
 import statsmodels.api as sm
 # import numpy as np
 from scipy.signal import find_peaks
 import threading
 import time
-import zmq
+if run_zmq:
+    import zmq
+    import re
 if run_osc:
     import liblo
 if run_link:
     import link
+if run_plot:
+    import matplotlib.pyplot as plt
+    from matplotlib.animation import FuncAnimation
 
+if run_zmq:
+    import zmq
+    subname = "imu"
+    addr = 'tcp://192.168.0.100:5555'
+    
+    context = zmq.Context()
+    
+    subscriberSocket = context.socket(zmq.SUB)
+    subscriberSocket.connect(addr)
+    subscriberSocket.setsockopt_string(zmq.SUBSCRIBE, subname)
+    
 import sys
 import statistics
 import math
 
-samplerate = 40
+samplerate = 20
 window = 3 # in seconds
 bpm = 60
-bpc = 2
+bpc = 4
 count = 0
+sensorcount = 3
 
 cps_target = 0.5
 
@@ -88,7 +106,7 @@ def incoming(self, floats):
   signal_freqs = []
   cps_values = []
   
-  for i in range(0,3):
+  for i in range(0,sensorcount):
     self._data.XData[i].append(self._data.XData[i][-1] + 1)
     self._data.YData[i].append((floats[i] * 2) - 1)
 
@@ -153,13 +171,73 @@ def incoming(self, floats):
 class Data():
 
     def __init__(self):
+        self.XData = []
+        self.YData = []
+        self.freqs = []
+        self.mags  = []
+        self.conf  = []
+        self.peakxy  = []
 
-        self.XData = [[0],[0],[0]]
-        self.YData = [[0],[0],[0]]
-        self.freqs = [[0],[0],[0]]
-        self.mags  = [[0],[0],[0]]
-        self.conf  = [[0],[0],[0]]
-        self.peakxy  = [(2,1),(2,1),(2,1)]
+        for i in range(0,sensorcount):
+            self.XData.append([0])
+            self.YData.append([0])
+            self.freqs.append([0])
+            self.mags.append([0])
+            self.conf.append([0])
+            self.peakxy.append((2,1))
+
+class Plot():
+    def __init__(self, data):
+        self._data = data
+        fig, axs = plt.subplots(3,sensorcount)
+        fig.suptitle("imu")
+        self.fftline = []
+        self.sigline = []
+        self.confline = []
+        self.annotation = []
+        
+        for i in range(0,sensorcount):
+            confline, = axs[0,i].plot(0, 0)
+            self.confline.append(confline)
+            
+            fftline, = axs[1,i].plot(0, 0)
+            self.fftline.append(fftline)
+
+            annotation = axs[1,i].annotate(
+                'local max', xy=(2, 1), xytext=(3, 1.5),
+                arrowprops=dict(facecolor='black', shrink=0.05),
+            )
+            self.annotation.append(annotation)
+            
+            sigline, = axs[2,i].plot(0, 0)
+            self.sigline.append(sigline)
+            
+        self.ani = FuncAnimation(plt.gcf(), # get current figure
+                                 self.run,
+                                 interval = 200,
+                                 repeat=True
+                                 )
+
+    def run(self, x):  
+        #print("plotting data")
+        for i in range(0,sensorcount):
+            self.sigline[i].set_data(self._data.XData[i], self._data.YData[i])
+            self.fftline[i].set_data(self._data.freqs[i], self._data.mags[i])
+            self.confline[i].set_data(self._data.freqs[i], self._data.conf[i])
+
+            (x,y) = self._data.peakxy[i]
+            # peak position
+            self.annotation[i].xy = (x,y)
+            self.annotation[i].set(text= ("cps %.2f" % (1/x)))
+            # annotation position
+            self.annotation[i].set_position((x+0.1,y+0.1))
+            
+            self.sigline[i].axes.relim()
+            self.sigline[i].axes.autoscale_view()
+            self.fftline[i].axes.relim()
+            self.fftline[i].axes.autoscale_view()
+            self.confline[i].axes.relim()
+            self.confline[i].axes.autoscale_view()
 
 class Fetch(threading.Thread):
 
@@ -172,9 +250,7 @@ class Fetch(threading.Thread):
 
     def run(self):
         global samplerate
-        context = zmq.Context()
         
-        times = [time.time()]
         while True:
             if run_osc:
                 osc_server.recv(1000)
@@ -185,10 +261,27 @@ class Fetch(threading.Thread):
             #floats = [1,1,1]
             #incoming(self, floats)
 
+            # about imu. now it is publishihg to the proxy server via zmq hosted on 192.168.0.100, you should subscribe to “imu”. Data is list of 8 numbers [AccX, AccY, AccZ,GyroX, iGyroY, GyroZ,imu.roll, imu.pitch]
+
+            if subscriberSocket.poll(timeout=1):
+                message = subscriberSocket.recv_multipart()
+                print(message)
+                msg = str(message[1]) #.decode("utf-8")
+                msg = re.sub(r"^b'","",msg)
+                msg = re.sub(r"^\w+\s+","",msg) # remove name from start
+                msg = re.sub(r";.*$","",msg)
+                numbers = re.findall("\d+[0-9\-e\.]*", msg)
+                floats = list(map(float, numbers))
+                print(floats)
+                incoming(self, floats)
+
+            
 data = Data()
+if run_plot:
+    print("run plot")
+    plotter = Plot(data)
 fetcher = Fetch(data)
 fetcher.start()
-#fetcher.join()
 
 if run_osc:
     def osc_callback(path, args):
@@ -204,5 +297,9 @@ if run_osc:
             print("argument of type '%s': %s" % (t, a))
     osc_server.add_method(None, None, fallback)
 
+if run_plot:
+    plt.show()
+#fetcher.join()
 
-print("aha")
+# 192.168.0.100 / imu
+
