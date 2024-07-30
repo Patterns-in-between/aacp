@@ -262,18 +262,18 @@ class Fetch(threading.Thread):
             #incoming(self, floats)
 
             # about imu. now it is publishihg to the proxy server via zmq hosted on 192.168.0.100, you should subscribe to “imu”. Data is list of 8 numbers [AccX, AccY, AccZ,GyroX, iGyroY, GyroZ,imu.roll, imu.pitch]
-
-            if subscriberSocket.poll(timeout=1):
-                message = subscriberSocket.recv_multipart()
-                print(message)
-                msg = str(message[1]) #.decode("utf-8")
-                msg = re.sub(r"^b'","",msg)
-                msg = re.sub(r"^\w+\s+","",msg) # remove name from start
-                msg = re.sub(r";.*$","",msg)
-                numbers = re.findall("\d+[0-9\-e\.]*", msg)
-                floats = list(map(float, numbers))
-                print(floats)
-                incoming(self, floats)
+            if run_zmq:
+                if subscriberSocket.poll(timeout=1):
+                    message = subscriberSocket.recv_multipart()
+                    print(message)
+                    msg = str(message[1]) #.decode("utf-8")
+                    msg = re.sub(r"^b'","",msg)
+                    msg = re.sub(r"^\w+\s+","",msg) # remove name from start
+                    msg = re.sub(r";.*$","",msg)
+                    numbers = re.findall("\d+[0-9\-e\.]*", msg)
+                    floats = list(map(float, numbers))
+                    print(floats)
+                    incoming(self, floats)
 
             
 data = Data()
