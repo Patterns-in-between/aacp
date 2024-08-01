@@ -1,10 +1,18 @@
 #!/usr/bin/python3
 
 run_osc = 0
-run_link = 0
-run_plot = 0
-run_zmq = 0
+run_link = 1
+run_plot = 1
+run_zmq = 1
 
+confidence_threshold = 0.8
+#range_threshold=15
+#y_range=100
+range_threshold=2
+y_range=360
+sensorcount = 2
+
+repetition_found = [False,False,False,False,False]
 
 import statsmodels.api as sm
 # import numpy as np
@@ -25,7 +33,7 @@ if run_plot:
 if run_zmq:
     import zmq
     subname = "imu"
-    addr = 'tcp://192.168.0.100:5555'
+    addr = 'tcp://192.168.0.110:5555'
     
     context = zmq.Context()
     
@@ -38,11 +46,12 @@ import statistics
 import math
 
 samplerate = 20
-window = 3 # in seconds
+
+window = 10 # in seconds
+
 bpm = 60
-bpc = 4
+bpc = 0.5
 count = 0
-sensorcount = 3
 
 cps_target = 0.5
 
@@ -99,6 +108,7 @@ def incoming(self, floats):
   global count, samplerate, times, cps_target
   times.append(time.time())
   samplerate = 1/ ((times[-1] - times[0]) / len(times))
+  #print("samplerate: %.2f" % samplerate)
 
   count = count + 1
   total = 0.0
@@ -142,12 +152,14 @@ def incoming(self, floats):
           last_second = x[0-math.floor(samplerate):]
           rnge = max(last_second) - min(last_second)
 
+          repetition_found[i]=False
           # Ignore if range is low - performer isn't moving much
-          if rnge > 0.1:
+          if rnge > range_threshold:
               lag = -1
               # find first peak with a confidence of 0.8 or greater
               for peak in peaks:
-                  if self._data.conf[i][peak] >= 0.8:
+                  if self._data.conf[i][peak] >= confidence_threshold:
+                      repetition_found[i]=True
                       lag = peak
                       #print("sensor %d cps %.2f conf %.2f range %.2f" % (i, 1/(peak/samplerate), self._data.conf[i][peak], rnge))
                       break
@@ -166,7 +178,7 @@ def incoming(self, floats):
       #print("multiple cps results: " + str(cps_values))
     else:
       cps_target = cps_values[0]
-  setTempo(cps_target, 0.5)
+  setTempo(cps_target, 10)
 
 class Data():
 
@@ -214,7 +226,7 @@ class Plot():
             
         self.ani = FuncAnimation(plt.gcf(), # get current figure
                                  self.run,
-                                 interval = 200,
+                                 interval = 100,
                                  repeat=True
                                  )
 
@@ -227,13 +239,18 @@ class Plot():
 
             (x,y) = self._data.peakxy[i]
             # peak position
-            self.annotation[i].xy = (x,y)
-            self.annotation[i].set(text= ("cps %.2f" % (1/x)))
+            if repetition_found[i]:
+              self.annotation[i].set(text= ("duration %.2f" % x))
+            else:
+              self.annotation[i].set(text="")
             # annotation position
+            self.annotation[i].xy = (x,y)
             self.annotation[i].set_position((x+0.1,y+0.1))
             
             self.sigline[i].axes.relim()
-            self.sigline[i].axes.autoscale_view()
+            #self.sigline[i].axes.autoscale_view()
+            self.sigline[i].axes.autoscale_view(scaley=False)
+            self.sigline[i].axes.set_ylim(0,y_range)
             self.fftline[i].axes.relim()
             self.fftline[i].axes.autoscale_view()
             self.confline[i].axes.relim()
@@ -263,16 +280,23 @@ class Fetch(threading.Thread):
 
             # about imu. now it is publishihg to the proxy server via zmq hosted on 192.168.0.100, you should subscribe to “imu”. Data is list of 8 numbers [AccX, AccY, AccZ,GyroX, iGyroY, GyroZ,imu.roll, imu.pitch]
             if run_zmq:
-                if subscriberSocket.poll(timeout=1):
+                print("polling")
+                if subscriberSocket.poll(timeout=1000):
+                    print("aha")
                     message = subscriberSocket.recv_multipart()
-                    print(message)
+                    #print(message)
                     msg = str(message[1]) #.decode("utf-8")
                     msg = re.sub(r"^b'","",msg)
                     msg = re.sub(r"^\w+\s+","",msg) # remove name from start
                     msg = re.sub(r";.*$","",msg)
                     numbers = re.findall("\d+[0-9\-e\.]*", msg)
                     floats = list(map(float, numbers))
-                    print(floats)
+                    #print(floats)
+                    roll = floats[3]
+                    # double
+                    pitch = floats[4]*2
+                    
+                    floats = [roll, pitch]
                     incoming(self, floats)
 
             
@@ -280,6 +304,7 @@ data = Data()
 if run_plot:
     print("run plot")
     plotter = Plot(data)
+    
 fetcher = Fetch(data)
 fetcher.start()
 
@@ -288,6 +313,7 @@ if run_osc:
         floats = [0,0,0]
         for i, arg in enumerate(args):
             floats[i] = float(arg)
+        print(floats)
         incoming(fetcher, floats)
     osc_server.add_method("/alex", "fff", osc_callback)
 
@@ -299,7 +325,5 @@ if run_osc:
 
 if run_plot:
     plt.show()
-#fetcher.join()
 
-# 192.168.0.100 / imu
 
