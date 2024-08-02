@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 run_osc = 0
+send_osc = 1
 run_link = 1
 run_plot = 1
 run_zmq = 1
@@ -8,9 +9,11 @@ run_zmq = 1
 confidence_threshold = 0.8
 #range_threshold=15
 #y_range=100
-range_threshold=2
+range_threshold=100
 y_range=360
 sensorcount = 2
+
+degrade_over  = 30
 
 repetition_found = [False,False,False,False,False]
 
@@ -22,8 +25,9 @@ import time
 if run_zmq:
     import zmq
     import re
-if run_osc:
+if run_osc or send_osc:
     import liblo
+    osc_targets = [liblo.Address(6010), liblo.Address("192.168.0.104", 6010)]
 if run_link:
     import link
 if run_plot:
@@ -45,12 +49,14 @@ import sys
 import statistics
 import math
 
-samplerate = 20
+samplerate = 14
 
-window = 10 # in seconds
+window = 3 # in seconds
+
+last_repetition = time.time()
 
 bpm = 60
-bpc = 0.5
+bpc = 1
 count = 0
 
 cps_target = 0.5
@@ -70,7 +76,7 @@ if run_link:
     bpm = s.tempo()
 
 def setTempo(target, maxchange):
-    global bpm, state
+    global bpm, state, last_repetition
     new_cps = target
 
     # maximum value to change cps by
@@ -105,10 +111,10 @@ def setTempo(target, maxchange):
 times = [time.time()]
 
 def incoming(self, floats):
-  global count, samplerate, times, cps_target
+  global count, samplerate, times, cps_target, last_repetition
   times.append(time.time())
   samplerate = 1/ ((times[-1] - times[0]) / len(times))
-  #print("samplerate: %.2f" % samplerate)
+  print("samplerate: %.2f" % samplerate)
 
   count = count + 1
   total = 0.0
@@ -154,6 +160,7 @@ def incoming(self, floats):
 
           repetition_found[i]=False
           # Ignore if range is low - performer isn't moving much
+          print("range: %.2f", rnge)
           if rnge > range_threshold:
               lag = -1
               # find first peak with a confidence of 0.8 or greater
@@ -174,11 +181,14 @@ def incoming(self, floats):
 
   if len(cps_values) > 0:
     if len(cps_values) > 1:
-      cps_target = statistics.median(cps_values)
+      #cps_target = statistics.median(cps_values)
+      cps_target = min(cps_values)
       #print("multiple cps results: " + str(cps_values))
     else:
       cps_target = cps_values[0]
-  setTempo(cps_target, 10)
+    last_repetition = time.time()
+    
+  setTempo(cps_target, 0.25)
 
 class Data():
 
@@ -266,11 +276,16 @@ class Fetch(threading.Thread):
         self._nextCall = time.time()
 
     def run(self):
-        global samplerate
+        global samplerate,last_repetition,degrade_over
         
         while True:
             if run_osc:
                 osc_server.recv(1000)
+            if send_osc:
+                repetition_level = 1-min((time.time() - last_repetition) / degrade_over, 1)
+                for osc_target in osc_targets:
+                    print("repetition: %.2f" % (repetition_level))
+                    liblo.send(osc_target, "/ctrl", "repetition", repetition_level)
 
             if len(times) > 100:
                 times.pop(0)
@@ -280,9 +295,7 @@ class Fetch(threading.Thread):
 
             # about imu. now it is publishihg to the proxy server via zmq hosted on 192.168.0.100, you should subscribe to “imu”. Data is list of 8 numbers [AccX, AccY, AccZ,GyroX, iGyroY, GyroZ,imu.roll, imu.pitch]
             if run_zmq:
-                print("polling")
-                if subscriberSocket.poll(timeout=1000):
-                    print("aha")
+                if subscriberSocket.poll(timeout=500):
                     message = subscriberSocket.recv_multipart()
                     #print(message)
                     msg = str(message[1]) #.decode("utf-8")
@@ -298,7 +311,7 @@ class Fetch(threading.Thread):
                     
                     floats = [roll, pitch]
                     incoming(self, floats)
-
+                
             
 data = Data()
 if run_plot:
