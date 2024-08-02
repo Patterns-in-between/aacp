@@ -41,9 +41,6 @@ print(f'Max correlation: {max_corr}, at lag: {lag}')
 
 
 
-
-
-
 ## 2. Calculate DTW 
 
 
