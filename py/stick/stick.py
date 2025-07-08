@@ -17,9 +17,7 @@ context = zmq.Context()
 subscriberSocket = context.socket(zmq.SUB)
 subscriberSocket.connect(addr)
 subscriberSocket.setsockopt_string(zmq.SUBSCRIBE, subname)
-
-def cycle_now():
-    return link_clock.cyclePos()
+subscriberSocket.setsockopt_string(zmq.SUBSCRIBE, "pattern")
 
 try:
     osc_server = liblo.Server(7070)
@@ -34,7 +32,7 @@ fps = 40
 pygame.init()
 pygame_clock = pygame.time.Clock()
 
-size = width, height = 1024, 1024
+size = width, height = 512, 512
 midx = width/2
 midy = height/2
 
@@ -81,24 +79,32 @@ while 1:
     #simulate()
 
     dt = pygame_clock.tick(fps)
-    t = link_clock.cyclePos()
-    b = link_clock.beat()
+    t = link_clock.cyclePos()*2
+    #b = link_clock.beat()
+    b = math.floor(t * segments)
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
 
     screen.fill(black)
     
-    x = (300 * math.cos((t % 1)*math.tau-half_pi))+midx;
-    y = (300 * math.sin((t % 1)*math.tau-half_pi))+midy;
+    x = (150 * math.cos((t % 1)*math.tau-half_pi))+midx;
+    y = (150 * math.sin((t % 1)*math.tau-half_pi))+midy;
 
     if subscriberSocket.poll(timeout=0):
         message = subscriberSocket.recv_multipart()
         print(message)
         msg = str(message[0]) #.decode("utf-8")
+        print(msg)
         if re.search(r"stick 1", msg):
             print("on")
             received = 1
-        
+        else:
+            m = re.search(r"pattern (\d)", msg)
+            if m:
+                print("match: ", int(m[1]))
+                for osc_target in osc_targets:
+                    liblo.send(osc_target, "/ctrl", "number", int(m[1]))
+
     if received:
         if b != prev:
             history = list(filter(lambda x: (b - x) <= history_sz,history))
@@ -114,7 +120,13 @@ while 1:
         
         print(pattern)
 
-        mini = " ".join(map(str, pattern))
+        def f(step):
+            if step == 0:
+                return "~"
+            else:
+                return str(step)
+        
+        mini = " ".join(map(f, pattern))
         print("mini: ", mini)
         for osc_target in osc_targets:
             liblo.send(osc_target, "/ctrl", "stick", mini)
@@ -126,7 +138,7 @@ while 1:
     for i in range(0,segments):
         value = pattern[i]
         if value > 0:
-            d = 300
+            d = 150
             xa = d * math.cos((i/segments)*math.tau-half_pi);
             ya = d * math.sin((i/segments)*math.tau-half_pi);
             xb = d * math.cos(((i+1)/segments)*math.tau-half_pi);
