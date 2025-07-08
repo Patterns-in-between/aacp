@@ -9,7 +9,7 @@ run_zmq = 1
 confidence_threshold = 0.8
 #range_threshold=15
 #y_range=100
-range_threshold=100
+range_threshold=50
 y_range=360
 sensorcount = 2
 
@@ -104,7 +104,7 @@ def setTempo(target, maxchange):
     if run_link:
         print("setting %.4f" % bpm)
         state = linkclock.captureSessionState()
-        state.setTempo(bpm, linkclock.clock().micros());
+        state.setTempo(bpm*2, linkclock.clock().micros());
         linkclock.commitSessionState(state);
 
 
