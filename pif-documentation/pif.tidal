@@ -1,0 +1,55 @@
+
+-- PIFCAMP JUL / AUG 2024
+setbpm :: Pattern Double -> IO()
+setbpm a = setcps(a/60/4)
+
+
+all $ id
+
+all $ selectF ((1-) <$> "^repetition") [id,
+                                        shuffle 8,
+                                        sometimes (fast 2) . shuffle 8,
+                                        slow 2 . degrade . echo 4 (1/12) 0.25 . sometimes (fast 2) . shuffle 12
+                                       ]
+
+
+all $ selectF ((1-) <$> "^repetition") [id,
+                                        (#squiz 1),
+                                        (#squiz 2).(#coarse 10).(#accelerate  "0.2") ,
+                                        slow 2 . degrade . echo 4 (1/12) 0.25 . (#squiz 2).(#coarse (10)).(#accelerate  "0.2")
+                                         ]
+
+d1
+   $ every 8 (#hpf "200 400 800 1e3")
+   $ every 5 (#crush 5)
+   $ stack [
+     brak $ s "[sfe-kd:1](5,8)" # shape "0.6" # speed (iter 3 "0.5 1 0.75") # coarse "3" # gain "0.9",
+      s " ~ [sfe-kw:7(3,8)?, sfe-fx] ~ k*2" #ctf (range 250 300 $ slow 8 $ sine) #shape 0.6,
+     s "808:1(7,8)?"  #speed 0.7 #gain 0.95
+   ] |* gain 1.2  |*| speed "[1, 1.02]"
+
+
+
+xfadeIn 3 8
+    -- $ loopAt 8
+    -- $ splice 32 "0..31"
+    $ spin (8)
+    $ slice 32 (iter 8 $ "{8*2 23 12 18 28 3 7 ~ 22}%4")
+    $ s "gecs:1"
+    # gain (1.5*( "^repetition"))
+
+
+d2 $ stack [
+          every 8 (chunk 2 (density 2).(#hpf "200 200 800 800"))
+          $ gain "{1 1 [1*2] [1 ~] ~ 1 1 1*2 }%8" #  s "sfe-kd:4"
+            # speed 0.26 # shape 0.29
+]
+
+  d6 $ s "lcp*4" #legato 1  # up (range 24 36$ slow 4 $ sine) # gain 0.85
+
+  d3 $ stack [
+    gain (iter 8 "{1 1*2 1 [~ 1] 1 1 ~ 1}%8" ) # s "sfe-kd:0" # speed ((1+) <$> "^repetition"),
+      sometimes (iter 4 ) $ stut' 3 0.125 (*| gain "0.9" ) $ s "~ sn:4" # n "1 2 4",
+      s "~ hh27"
+     ]
+     |*| speed ("^repetition")
